@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinCtrl - Take Control of Your Finances</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="logo">
+                <img src="assets/images/logo.svg" alt="FinCtrl Logo" class="logo-img">
+                FinCtrl
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="login.html" class="nav-link">Login</a>
+                <a href="signup.html" class="btn btn-primary">Sign Up</a>
+            </div>
+            <button class="mobile-menu" id="mobileMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Take Control of Your Finances with <span class="gradient-text">FinCtrl</span></h1>
+                <p class="hero-subtitle">Smart, simple, and automated expense tracking for everyone.</p>
+                <div class="hero-buttons">
+                    <a href="signup.html" class="btn btn-primary btn-large btn-glow">Get Started Free</a>
+                    <a href="#features" class="btn btn-outline btn-large">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="card-stack">
+                    <div class="finance-card main-card">
+                        <div class="card-header">
+                            <div class="card-logo">FinCtrl</div>
+                            <div class="card-date">October 2025</div>
+                        </div>
+                        <div class="card-balance">
+                            <div class="balance-label">Current Balance</div>
+                            <div class="balance-amount">$8,246.53</div>
+                            <div class="balance-trend positive">
+                                <i class="fas fa-arrow-up"></i> 12.6% from last month
+                            </div>
+                        </div>
+                        <div class="card-chart">
+                            <div class="chart-bar" style="height: 40%;"></div>
+                            <div class="chart-bar" style="height: 60%;"></div>
+                            <div class="chart-bar" style="height: 45%;"></div>
+                            <div class="chart-bar" style="height: 75%;"></div>
+                            <div class="chart-bar highlight" style="height: 90%;"></div>
+                            <div class="chart-bar" style="height: 65%;"></div>
+                            <div class="chart-bar" style="height: 50%;"></div>
+                        </div>
+                    </div>
+                    <div class="finance-card mini-card savings">
+                        <i class="fas fa-piggy-bank"></i>
+                        <div class="mini-card-title">Savings Goal</div>
+                        <div class="mini-card-value">$12,000</div>
+                        <div class="mini-card-progress">75% completed</div>
+                    </div>
+                    <div class="finance-card mini-card expenses">
+                        <i class="fas fa-chart-pie"></i>
+                        <div class="mini-card-title">Monthly Budget</div>
+                        <div class="mini-card-value">$2,850</div>
+                        <div class="mini-card-progress">60% used</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-container">
+            <h2 class="section-title">Powerful Features</h2>
+            <p class="section-subtitle">Everything you need to take control of your financial life, all in one place.</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Expense Tracking</h3>
+                    <p>Automatically categorize and track your spending patterns to understand where your money goes.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3>Budget Goals</h3>
+                    <p>Set monthly budgets for different categories and get notified when you're approaching your limits.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Smart Alerts</h3>
+                    <p>Receive intelligent notifications about unusual spending, upcoming bills, and saving opportunities.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="section-container">
+            <h2 class="section-title">How FinCtrl Works</h2>
+            <p class="section-subtitle">Simple, seamless, and secure - get started in minutes</p>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h3>Create Account</h3>
+                    <p>Sign up for free with your email and create a secure password.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <h3>Personalize</h3>
+                    <p>Set your financial goals, budget limits, and notification preferences.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Gain Insights</h3>
+                    <p>Start receiving insights and take control of your finances immediately.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="section-container">
+            <h2>Ready to Transform Your Financial Life?</h2>
+            <p>Be among the first to take control of your finances with FinCtrl's innovative platform.</p>
+            <a href="signup.html" class="btn btn-primary btn-large btn-glow">Get Started - It's Free</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h4>FinCtrl</h4>
+                    <p>Smart, simple, and automated expense tracking for everyone.</p>
+                    <div class="social-links">
+                        <a href="javascript:void(0);"><i class="fab fa-facebook"></i></a>
+                        <a href="javascript:void(0);"><i class="fab fa-twitter"></i></a>
+                        <a href="javascript:void(0);"><i class="fab fa-instagram"></i></a>
+                        <a href="javascript:void(0);"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Product</h4>
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How It Works</a>
+                    <a href="#features">Integrations</a>
+                    <a href="#features">Updates</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <a href="javascript:void(0);">Blog</a>
+                    <a href="javascript:void(0);">User Guides</a>
+                    <a href="javascript:void(0);">Webinars</a>
+                    <a href="javascript:void(0);">Help Center</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <a href="javascript:void(0);">About Us</a>
+                    <a href="javascript:void(0);">Careers</a>
+                    <a href="javascript:void(0);">Contact Us</a>
+                    <a href="javascript:void(0);">Media Kit</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 FinCtrl. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
