@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+# FinTrack
+=======
 # FinCtrl - Financial Management Application
 
 FinCtrl is a modern financial management web application that helps users track their spending, manage budgets, and gain insights into their financial health.
@@ -90,3 +93,4 @@ For detailed instructions, see the [Email Setup Guide](email_setup_guide.md).
 ## Contact
 
 For questions or support, please contact [your-email@example.com]
+>>>>>>> upto_login

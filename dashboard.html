@@ -1,335 +1,272 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinCtrl - Dashboard</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/dashboard.css">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - FinCtrl</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <div class="dashboard-layout">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <a href="index.html" class="logo">
-                    <img src="assets/images/logo.svg" alt="FinCtrl Logo" class="logo-img">
-                    FinCtrl
-                </a>
-                <button class="close-sidebar" id="closeSidebar">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <ul>
-                    <li class="active">
-                        <a href="#"><i class="fas fa-home"></i> Dashboard</a>
-                    </li>
-                    <li>
-                        <a href="#"><i class="fas fa-chart-line"></i> Transactions</a>
-                    </li>
-                    <li>
-                        <a href="#"><i class="fas fa-wallet"></i> Accounts</a>
-                    </li>
-                    <li>
-                        <a href="#"><i class="fas fa-piggy-bank"></i> Savings</a>
-                    </li>
-                    <li>
-                        <a href="#"><i class="fas fa-chart-pie"></i> Budgets</a>
-                    </li>
-                    <li>
-                        <a href="#"><i class="fas fa-chart-bar"></i> Reports</a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <a href="#"><i class="fas fa-cog"></i> Settings</a>
-                    </li>
-                    <li>
-                        <a href="#"><i class="fas fa-question-circle"></i> Help</a>
-                    </li>
-                </ul>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
-            </div>
-        </aside>
-        
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Top Header -->
-            <header class="content-header">
-                <button class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h1>Dashboard</h1>
-                <div class="header-actions">
-                    <button class="notifications">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge">3</span>
-                    </button>
-                    <div class="user-profile">
-                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=4CAF50&color=fff" alt="User Profile">
-                        <span>John Doe</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                </div>
-            </header>
-            
-            <!-- Dashboard Content -->
-            <div class="dashboard-content">
-                <div class="content-card welcome-card">
-                    <div>
-                        <h2>Welcome back, John!</h2>
-                        <p>Here's what's happening with your finances today.</p>
-                    </div>
-                    <button class="btn btn-primary">Add Transaction</button>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon income">
-                            <i class="fas fa-arrow-down"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>$4,385.00</h3>
-                            <p>Total Income</p>
-                        </div>
-                        <div class="stat-trend positive">
-                            <i class="fas fa-arrow-up"></i> 12%
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon expenses">
-                            <i class="fas fa-arrow-up"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>$1,854.00</h3>
-                            <p>Total Expenses</p>
-                        </div>
-                        <div class="stat-trend negative">
-                            <i class="fas fa-arrow-up"></i> 8%
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon savings">
-                            <i class="fas fa-piggy-bank"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>$9,248.00</h3>
-                            <p>Total Savings</p>
-                        </div>
-                        <div class="stat-trend positive">
-                            <i class="fas fa-arrow-up"></i> 5%
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon budget">
-                            <i class="fas fa-wallet"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h3>65%</h3>
-                            <p>Budget Used</p>
-                        </div>
-                        <div class="stat-trend">
-                            35% remaining
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="content-grid">
-                    <!-- Recent Transactions -->
-                    <div class="content-card transactions-card">
-                        <div class="card-header">
-                            <h3>Recent Transactions</h3>
-                            <a href="#" class="view-all">View All</a>
-                        </div>
-                        <div class="transaction-list">
-                            <div class="transaction-item">
-                                <div class="transaction-icon shopping">
-                                    <i class="fas fa-shopping-bag"></i>
-                                </div>
-                                <div class="transaction-info">
-                                    <h4>Amazon</h4>
-                                    <p>Shopping</p>
-                                </div>
-                                <div class="transaction-amount expense">
-                                    -$85.40
-                                </div>
-                            </div>
-                            <div class="transaction-item">
-                                <div class="transaction-icon salary">
-                                    <i class="fas fa-briefcase"></i>
-                                </div>
-                                <div class="transaction-info">
-                                    <h4>Salary</h4>
-                                    <p>Deposit</p>
-                                </div>
-                                <div class="transaction-amount income">
-                                    +$4,250.00
-                                </div>
-                            </div>
-                            <div class="transaction-item">
-                                <div class="transaction-icon food">
-                                    <i class="fas fa-utensils"></i>
-                                </div>
-                                <div class="transaction-info">
-                                    <h4>Restaurant</h4>
-                                    <p>Food</p>
-                                </div>
-                                <div class="transaction-amount expense">
-                                    -$45.80
-                                </div>
-                            </div>
-                            <div class="transaction-item">
-                                <div class="transaction-icon utility">
-                                    <i class="fas fa-bolt"></i>
-                                </div>
-                                <div class="transaction-info">
-                                    <h4>Electric Bill</h4>
-                                    <p>Utilities</p>
-                                </div>
-                                <div class="transaction-amount expense">
-                                    -$128.50
-                                </div>
-                            </div>
-                            <div class="transaction-item">
-                                <div class="transaction-icon transfer">
-                                    <i class="fas fa-exchange-alt"></i>
-                                </div>
-                                <div class="transaction-info">
-                                    <h4>Transfer to Savings</h4>
-                                    <p>Savings</p>
-                                </div>
-                                <div class="transaction-amount expense">
-                                    -$500.00
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Upcoming Bills -->
-                    <div class="content-card bills-card">
-                        <div class="card-header">
-                            <h3>Upcoming Bills</h3>
-                            <a href="#" class="view-all">View All</a>
-                        </div>
-                        <div class="bills-list">
-                            <div class="bill-item">
-                                <div class="bill-icon rent">
-                                    <i class="fas fa-home"></i>
-                                </div>
-                                <div class="bill-info">
-                                    <h4>Rent</h4>
-                                    <p>Due in 5 days</p>
-                                </div>
-                                <div class="bill-amount">
-                                    $1,200.00
-                                </div>
-                            </div>
-                            <div class="bill-item">
-                                <div class="bill-icon internet">
-                                    <i class="fas fa-wifi"></i>
-                                </div>
-                                <div class="bill-info">
-                                    <h4>Internet</h4>
-                                    <p>Due in 12 days</p>
-                                </div>
-                                <div class="bill-amount">
-                                    $65.00
-                                </div>
-                            </div>
-                            <div class="bill-item">
-                                <div class="bill-icon subscription">
-                                    <i class="fas fa-music"></i>
-                                </div>
-                                <div class="bill-info">
-                                    <h4>Spotify</h4>
-                                    <p>Due in 15 days</p>
-                                </div>
-                                <div class="bill-amount">
-                                    $9.99
-                                </div>
-                            </div>
-                            <div class="bill-item">
-                                <div class="bill-icon phone">
-                                    <i class="fas fa-mobile-alt"></i>
-                                </div>
-                                <div class="bill-info">
-                                    <h4>Phone Bill</h4>
-                                    <p>Due in 18 days</p>
-                                </div>
-                                <div class="bill-amount">
-                                    $45.50
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="content-card spending-card">
-                    <div class="card-header">
-                        <h3>Spending by Category</h3>
-                        <div class="spending-filter">
-                            <span>Filter:</span>
-                            <select>
-                                <option>This Month</option>
-                                <option>Last Month</option>
-                                <option>Last 3 Months</option>
-                                <option>This Year</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="spending-chart">
-                        <div class="chart-placeholder">
-                            <div class="pie-chart">
-                                <div class="pie-segment" style="--percentage: 30%; --color: #4CAF50;"></div>
-                                <div class="pie-segment" style="--percentage: 25%; --color: #2196F3;"></div>
-                                <div class="pie-segment" style="--percentage: 20%; --color: #FF9800;"></div>
-                                <div class="pie-segment" style="--percentage: 15%; --color: #9C27B0;"></div>
-                                <div class="pie-segment" style="--percentage: 10%; --color: #F44336;"></div>
-                            </div>
-                        </div>
-                        <div class="chart-legend">
-                            <div class="legend-item">
-                                <span class="legend-color" style="background-color: #4CAF50;"></span>
-                                <span class="legend-label">Housing</span>
-                                <span class="legend-value">30%</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color" style="background-color: #2196F3;"></span>
-                                <span class="legend-label">Food</span>
-                                <span class="legend-value">25%</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color" style="background-color: #FF9800;"></span>
-                                <span class="legend-label">Transportation</span>
-                                <span class="legend-value">20%</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color" style="background-color: #9C27B0;"></span>
-                                <span class="legend-label">Entertainment</span>
-                                <span class="legend-value">15%</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-color" style="background-color: #F44336;"></span>
-                                <span class="legend-label">Other</span>
-                                <span class="legend-value">10%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
+<body class="bg-slate-50 text-slate-900">
+  <div class="grid grid-cols-12 min-h-screen">
+    <!-- Sidebar -->
+    <aside class="col-span-12 md:col-span-3 lg:col-span-2 bg-slate-900 text-slate-100 p-5 space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-md bg-emerald-500"></div>
+        <h2 class="text-lg font-semibold">FinCtrl</h2>
+      </div>
+      <nav class="space-y-1">
+        <a class="block px-3 py-2 rounded hover:bg-slate-800" href="dashboard.html">Dashboard</a>
+        <button id="addExpense" class="w-full text-left px-3 py-2 rounded hover:bg-slate-800">Add Expense</button>
+        <button id="addBill" class="w-full text-left px-3 py-2 rounded hover:bg-slate-800">Bills</button>
+        <a class="block px-3 py-2 rounded hover:bg-slate-800" href="#">Reports</a>
+        <a class="block px-3 py-2 rounded hover:bg-slate-800" href="#">Profile</a>
+      </nav>
+    </aside>
 
-    <script src="assets/js/dashboard.js"></script>
+    <!-- Main -->
+    <main class="col-span-12 md:col-span-9 lg:col-span-10">
+      <!-- Topbar -->
+      <div class="flex items-center justify-between bg-white border-b border-slate-200 px-5 py-3">
+        <div class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded bg-emerald-500"></div>
+          <div class="font-semibold">Dashboard</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="themeToggle" class="px-3 py-2 rounded bg-slate-800 text-white">Toggle Theme</button>
+          <button id="logoutBtn" class="px-3 py-2 rounded bg-emerald-600 text-white">Logout</button>
+        </div>
+      </div>
+
+      <!-- Cards -->
+      <section class="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-4 p-5">
+        <div class="p-4 rounded-xl bg-white border border-slate-200">
+          <div class="text-slate-500">Total Budget</div>
+          <div id="totalBudget" class="text-2xl font-semibold">-</div>
+        </div>
+        <div class="p-4 rounded-xl bg-white border border-slate-200">
+          <div class="text-slate-500">Total Expenses</div>
+          <div id="totalExpenses" class="text-2xl font-semibold">-</div>
+        </div>
+        <div class="p-4 rounded-xl bg-white border border-slate-200">
+          <div class="text-slate-500">Remaining Budget</div>
+          <div id="remainingBudget" class="text-2xl font-semibold">-</div>
+        </div>
+        <div class="p-4 rounded-xl bg-white border border-slate-200">
+          <div class="text-slate-500">Upcoming Bill</div>
+          <div id="upcomingBill" class="text-2xl font-semibold">-</div>
+        </div>
+      </section>
+
+      <!-- Charts -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-5">
+        <div class="p-4 rounded-xl bg-white border border-slate-200">
+          <div class="mb-2 font-semibold">Spending by Category</div>
+          <canvas id="pieChart" height="200"></canvas>
+        </div>
+        <div class="p-4 rounded-xl bg-white border border-slate-200">
+          <div class="mb-2 font-semibold">Monthly Spending</div>
+          <canvas id="barChart" height="200"></canvas>
+        </div>
+      </section>
+
+      <!-- Quick Actions -->
+      <section class="px-5 pb-3">
+        <div class="flex gap-3">
+          <button class="px-4 py-2 bg-emerald-600 text-white rounded" id="quickAddExpense">+ Add Expense</button>
+          <button class="px-4 py-2 bg-emerald-600 text-white rounded" id="quickAddBill">+ Add Bill</button>
+        </div>
+      </section>
+
+      <!-- Recent Transactions -->
+      <section class="p-5">
+        <div class="p-4 rounded-xl bg-white border border-slate-200">
+          <div class="font-semibold mb-2">Recent Transactions</div>
+          <div id="emptyState" class="hidden p-3 border border-dashed rounded text-slate-500">You havent added any expenses yet. Click + Add Expense to get started!</div>
+          <div class="overflow-x-auto">
+            <table id="txTable" class="min-w-full">
+              <thead class="text-left text-slate-500">
+                <tr><th class="py-2">Date</th><th class="py-2">Category</th><th class="py-2">Amount</th><th class="py-2">Description</th><th class="py-2">Actions</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Add Expense Modal -->
+  <div id="expenseModal" class="fixed inset-0 hidden items-center justify-center bg-black/50">
+    <div class="bg-white rounded-xl w-full max-w-md p-5">
+      <div class="flex justify-between items-center mb-3">
+        <div class="font-semibold">Add Expense</div>
+        <button class="text-slate-500" data-close-expense>&times;</button>
+      </div>
+      <form id="expenseForm" class="space-y-3">
+        <div>
+          <label class="text-sm text-slate-600">Date</label>
+          <input type="date" id="expDate" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div>
+          <label class="text-sm text-slate-600">Category</label>
+          <select id="expCategory" class="w-full border rounded px-3 py-2" required></select>
+        </div>
+        <div>
+          <label class="text-sm text-slate-600">Amount</label>
+          <input type="number" step="0.01" id="expAmount" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div>
+          <label class="text-sm text-slate-600">Description</label>
+          <input type="text" id="expDesc" class="w-full border rounded px-3 py-2" />
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" class="px-4 py-2 rounded border" data-close-expense>Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded bg-emerald-600 text-white">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Bill Modal -->
+  <div id="billModal" class="fixed inset-0 hidden items-center justify-center bg-black/50">
+    <div class="bg-white rounded-xl w-full max-w-md p-5">
+      <div class="flex justify-between items-center mb-3">
+        <div class="font-semibold">Add Bill</div>
+        <button class="text-slate-500" data-close-bill>&times;</button>
+      </div>
+      <form id="billForm" class="space-y-3">
+        <div>
+          <label class="text-sm text-slate-600">Name</label>
+          <input type="text" id="billName" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div>
+          <label class="text-sm text-slate-600">Amount</label>
+          <input type="number" step="0.01" id="billAmount" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div>
+          <label class="text-sm text-slate-600">Due Date</label>
+          <input type="date" id="billDue" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" class="px-4 py-2 rounded border" data-close-bill>Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded bg-emerald-600 text-white">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Simple modal helpers
+    const show = (el) => el.classList.remove('hidden');
+    const hide = (el) => el.classList.add('hidden');
+
+    const expenseModal = document.getElementById('expenseModal');
+    const billModal = document.getElementById('billModal');
+
+    // Button wiring
+    document.getElementById('addExpense').addEventListener('click', () => show(expenseModal));
+    document.getElementById('quickAddExpense').addEventListener('click', () => show(expenseModal));
+    document.getElementById('addBill').addEventListener('click', () => show(billModal));
+    document.getElementById('quickAddBill').addEventListener('click', () => show(billModal));
+
+    document.querySelectorAll('[data-close-expense]').forEach(btn => btn.addEventListener('click', () => hide(expenseModal)));
+    document.querySelectorAll('[data-close-bill]').forEach(btn => btn.addEventListener('click', () => hide(billModal)));
+
+    // Theme toggle (very basic)
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      document.body.classList.toggle('bg-slate-900');
+      document.body.classList.toggle('text-slate-100');
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try { await fetch('logout.php'); } catch(e) {}
+      window.location.href = 'login.html';
+    });
+
+    // Load categories for expense select
+    async function loadCategories(){
+      try{
+        const res = await fetch('list_categories.php');
+        const data = await res.json();
+        const sel = document.getElementById('expCategory');
+        sel.innerHTML = '';
+        (data.categories || []).forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id; opt.textContent = c.name;
+          sel.appendChild(opt);
+        });
+      }catch(e){ console.error(e); }
+    }
+
+    // Submit expense
+    document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        date: document.getElementById('expDate').value,
+        categoryId: parseInt(document.getElementById('expCategory').value, 10),
+        amount: parseFloat(document.getElementById('expAmount').value),
+        description: document.getElementById('expDesc').value || null
+      };
+      try{
+        const res = await fetch('add_expense.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const data = await res.json();
+        if (data.success){ hide(expenseModal); await loadDashboard(); }
+        else { alert(data.message || 'Failed to add expense'); }
+      }catch(e){ alert('Network error'); }
+    });
+
+    // Submit bill
+    document.getElementById('billForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('billName').value,
+        amount: parseFloat(document.getElementById('billAmount').value),
+        dueDate: document.getElementById('billDue').value
+      };
+      try{
+        const res = await fetch('add_bill.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const data = await res.json();
+        if (data.success){ hide(billModal); await loadDashboard(); }
+        else { alert(data.message || 'Failed to add bill'); }
+      }catch(e){ alert('Network error'); }
+    });
+
+    // Dashboard data loader
+    async function loadDashboard(){
+      try{
+        const res = await fetch('dashboard_data.php');
+        const data = await res.json();
+        // Cards
+        document.getElementById('totalBudget').textContent = data.totalBudgetFormatted;
+        document.getElementById('totalExpenses').textContent = data.totalExpensesFormatted;
+        document.getElementById('remainingBudget').textContent = data.remainingBudgetFormatted;
+        document.getElementById('upcomingBill').textContent = data.upcomingBill || '-';
+
+        // Table
+        const tbody = document.querySelector('#txTable tbody');
+        tbody.innerHTML = '';
+        if (!data.recentTransactions || data.recentTransactions.length === 0){
+          document.getElementById('emptyState').classList.remove('hidden');
+        } else {
+          document.getElementById('emptyState').classList.add('hidden');
+          data.recentTransactions.forEach(t => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td class="py-2">${t.date}</td><td class="py-2">${t.category}</td><td class="py-2">${t.amountFormatted}</td><td class="py-2">${t.description||''}</td><td class="py-2"><button class='text-emerald-700'>Edit</button> / <button class='text-rose-700'>Delete</button></td>`;
+            tbody.appendChild(tr);
+          });
+        }
+
+        // Charts
+        new Chart(document.getElementById('pieChart'), { type:'pie', data:{ labels:data.categoryBreakdown.labels, datasets:[{ data:data.categoryBreakdown.values, backgroundColor:['#34d399','#60a5fa','#fb7185','#a78bfa','#fbbf24','#22d3ee'] }] } });
+        new Chart(document.getElementById('barChart'), { type:'bar', data:{ labels:data.monthly.labels, datasets:[{ label:'Spending', data:data.monthly.values, backgroundColor:'#10b981' }] }, options:{ scales:{ y:{ beginAtZero:true } } } });
+      }catch(e){ console.error(e); }
+    }
+
+    // Init
+    loadCategories();
+    loadDashboard();
+  </script>
 </body>
 </html>
