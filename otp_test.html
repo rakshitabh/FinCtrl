@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #0066cc;
+            margin-top: 20px;
+        }
+        input {
+            padding: 8px;
+            width: 250px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0055aa;
+        }
+        pre {
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .error {
+            color: #cc0000;
+            font-weight: bold;
+        }
+        .success {
+            color: #00cc00;
+            font-weight: bold;
+        }
+        .debug-info {
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>OTP Functionality Test</h1>
+
+    <div class="container">
+        <h2>Step 1: Request OTP</h2>
+        <form id="sendOtpForm">
+            <div>
+                <label for="name">Full Name:</label><br>
+                <input type="text" id="name" name="name" placeholder="Your Name" required>
+            </div>
+            <div style="margin-top: 10px;">
+                <label for="email">Email:</label><br>
+                <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+            </div>
+            <div style="margin-top: 15px;">
+                <button type="submit">Send OTP</button>
+            </div>
+        </form>
+        <div id="sendOtpResult" class="debug-info"></div>
+    </div>
+
+    <div class="container">
+        <h2>Step 2: Verify OTP</h2>
+        <form id="verifyOtpForm">
+            <div>
+                <label for="verify-email">Email:</label><br>
+                <input type="email" id="verify-email" name="verify-email" placeholder="your.email@example.com" required>
+            </div>
+            <div style="margin-top: 10px;">
+                <label for="otp">OTP Code:</label><br>
+                <input type="text" id="otp" name="otp" placeholder="Enter 6-digit OTP" required>
+            </div>
+            <div style="margin-top: 15px;">
+                <button type="submit">Verify OTP</button>
+            </div>
+        </form>
+        <div id="verifyOtpResult" class="debug-info"></div>
+    </div>
+
+    <div class="container">
+        <h2>Debug Information</h2>
+        <p>This page helps test the OTP functionality separately from the main application.</p>
+        <p>PHP Error log location: <code>c:\wamp64\logs\php_error.log</code></p>
+        <p>Debug endpoints being used:</p>
+        <ul>
+            <li><code>send_otp_debug.php</code> - Enhanced version with detailed error logging</li>
+            <li><code>verify_otp_debug.php</code> - Enhanced version with detailed error logging</li>
+        </ul>
+        <p>If you need to check database entries:</p>
+        <pre>
+SELECT * FROM otp_verifications ORDER BY created_at DESC LIMIT 10;
+        </pre>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sendOtpForm = document.getElementById('sendOtpForm');
+            const verifyOtpForm = document.getElementById('verifyOtpForm');
+            const sendOtpResult = document.getElementById('sendOtpResult');
+            const verifyOtpResult = document.getElementById('verifyOtpResult');
+            
+            // Send OTP Form
+            sendOtpForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                
+                // Update verify email field with the same email
+                document.getElementById('verify-email').value = email;
+                
+                // Show loading
+                sendOtpResult.innerHTML = '<p>Sending OTP...</p>';
+                
+                fetch('send_otp_debug.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Send OTP Response:', data);
+                    
+                    if (data.status === 'success') {
+                        sendOtpResult.innerHTML = `
+                            <p class="success">OTP sent successfully!</p>
+                            <p>Response: ${JSON.stringify(data)}</p>
+                            ${data.test_otp ? `<p><strong>Test OTP:</strong> ${data.test_otp}</p>` : ''}
+                        `;
+                    } else {
+                        sendOtpResult.innerHTML = `
+                            <p class="error">Error: ${data.message}</p>
+                            <p>Response: ${JSON.stringify(data)}</p>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    sendOtpResult.innerHTML = `
+                        <p class="error">An error occurred: ${error.message}</p>
+                    `;
+                });
+            });
+            
+            // Verify OTP Form
+            verifyOtpForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('verify-email').value.trim();
+                const otp = document.getElementById('otp').value.trim();
+                
+                // Show loading
+                verifyOtpResult.innerHTML = '<p>Verifying OTP...</p>';
+                
+                fetch('verify_otp_debug.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, otp })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Verify OTP Response:', data);
+                    
+                    if (data.status === 'success') {
+                        verifyOtpResult.innerHTML = `
+                            <p class="success">OTP verified successfully!</p>
+                            <p>Response: ${JSON.stringify(data)}</p>
+                        `;
+                    } else {
+                        verifyOtpResult.innerHTML = `
+                            <p class="error">Error: ${data.message}</p>
+                            <p>Response: ${JSON.stringify(data)}</p>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    verifyOtpResult.innerHTML = `
+                        <p class="error">An error occurred: ${error.message}</p>
+                    `;
+                });
+            });
+        });
+    </script>
+</body>
+</html>

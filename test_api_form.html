@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .test-section {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .response {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Send OTP</h2>
+        <div class="form-group">
+            <label for="otpEmail">Email:</label>
+            <input type="email" id="otpEmail" value="">
+        </div>
+        <div class="form-group">
+            <label for="otpName">Name (optional):</label>
+            <input type="text" id="otpName" value="">
+        </div>
+        <button onclick="sendOTP()">Send OTP</button>
+        <div class="response">
+            <strong>Response:</strong>
+            <pre id="otpResponse">None yet</pre>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Verify OTP</h2>
+        <div class="form-group">
+            <label for="verifyEmail">Email:</label>
+            <input type="email" id="verifyEmail" value="">
+        </div>
+        <div class="form-group">
+            <label for="verifyOTP">OTP:</label>
+            <input type="text" id="verifyOTP" value="">
+        </div>
+        <button onclick="verifyOTP()">Verify OTP</button>
+        <div class="response">
+            <strong>Response:</strong>
+            <pre id="verifyResponse">None yet</pre>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Register User</h2>
+        <div class="form-group">
+            <label for="registerFullName">Full Name:</label>
+            <input type="text" id="registerFullName" value="">
+        </div>
+        <div class="form-group">
+            <label for="registerEmail">Email:</label>
+            <input type="email" id="registerEmail" value="">
+        </div>
+        <div class="form-group">
+            <label for="registerPassword">Password:</label>
+            <input type="password" id="registerPassword" value="">
+        </div>
+        <button onclick="registerUser()">Register User</button>
+        <div class="response">
+            <strong>Response:</strong>
+            <pre id="registerResponse">None yet</pre>
+        </div>
+    </div>
+
+    <script>
+        // Function to format JSON in a readable way
+        function formatJson(json) {
+            return JSON.stringify(json, null, 2);
+        }
+
+        // Send OTP
+        function sendOTP() {
+            const email = document.getElementById('otpEmail').value;
+            const name = document.getElementById('otpName').value;
+            
+            if (!email) {
+                document.getElementById('otpResponse').textContent = 'Email is required';
+                return;
+            }
+            
+            fetch('send_otp.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, name })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('otpResponse').textContent = formatJson(data);
+                
+                // Auto-fill email in verify section
+                document.getElementById('verifyEmail').value = email;
+                
+                // If test OTP is returned, auto-fill it
+                if (data.test_otp) {
+                    document.getElementById('verifyOTP').value = data.test_otp;
+                }
+            })
+            .catch(error => {
+                document.getElementById('otpResponse').textContent = 'Error: ' + error.message;
+            });
+        }
+
+        // Verify OTP
+        function verifyOTP() {
+            const email = document.getElementById('verifyEmail').value;
+            const otp = document.getElementById('verifyOTP').value;
+            
+            if (!email || !otp) {
+                document.getElementById('verifyResponse').textContent = 'Email and OTP are required';
+                return;
+            }
+            
+            fetch('verify_otp.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, otp })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('verifyResponse').textContent = formatJson(data);
+                
+                // Auto-fill email in register section if verification successful
+                if (data.status === 'success' || data.success) {
+                    document.getElementById('registerEmail').value = email;
+                }
+            })
+            .catch(error => {
+                document.getElementById('verifyResponse').textContent = 'Error: ' + error.message;
+            });
+        }
+
+        // Register User
+        function registerUser() {
+            const fullName = document.getElementById('registerFullName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!fullName || !email || !password) {
+                document.getElementById('registerResponse').textContent = 'All fields are required';
+                return;
+            }
+            
+            fetch('register.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ fullName, email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('registerResponse').textContent = formatJson(data);
+                
+                // Redirect if registration successful and redirect URL provided
+                if ((data.status === 'success' || data.success) && data.redirect) {
+                    setTimeout(() => {
+                        if (confirm('Registration successful! Redirect to ' + data.redirect + '?')) {
+                            window.location.href = data.redirect;
+                        }
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                document.getElementById('registerResponse').textContent = 'Error: ' + error.message;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Ignore Composer dependencies
+/vendor/
+
+# Ignore Composer lock file
+composer.lock
+
+# Ignore local environment configuration files
+.env
+
+# Ignore IDE and editor files
+.idea/
+.vscode/
+*.sublime-workspace
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore log files
+*.log
+logs/
+
+# Ignore sensitive files
+smtp_config.php

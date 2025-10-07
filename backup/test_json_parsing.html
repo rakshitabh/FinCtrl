@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Parsing Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            max-width: 1000px;
+        }
+        button {
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        #output {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSON Parsing Test</h1>
+    
+    <button id="testDirectLogin">Test Direct Login.php</button>
+    <button id="testProxyLogin">Test Login via Proxy</button>
+    <button id="testManualJson">Test Manual JSON</button>
+    
+    <div id="output">Results will appear here...</div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        // Helper function to display results
+        function displayResults(title, rawResponse, hexView, parseResult, error = null) {
+            let html = `<h2>${title}</h2>`;
+            
+            html += `<h3>Raw Response:</h3>`;
+            html += `<div>${rawResponse}</div>`;
+            
+            html += `<h3>Hex View:</h3>`;
+            html += `<div>${hexView}</div>`;
+            
+            html += `<h3>Parse Result:</h3>`;
+            html += `<div>${parseResult}</div>`;
+            
+            if (error) {
+                html += `<h3>Error:</h3>`;
+                html += `<div style="color: red;">${error}</div>`;
+            }
+            
+            output.innerHTML = html;
+        }
+        
+        // Function to convert string to hex view
+        function toHexView(str) {
+            let hex = '';
+            let ascii = '';
+            let result = '';
+            
+            for (let i = 0; i < str.length; i++) {
+                const charCode = str.charCodeAt(i);
+                hex += charCode.toString(16).padStart(2, '0') + ' ';
+                
+                // Show printable characters in ASCII column
+                if (charCode >= 32 && charCode <= 126) {
+                    ascii += str[i];
+                } else {
+                    ascii += '.';
+                }
+                
+                // Line break every 16 characters
+                if ((i + 1) % 16 === 0 || i === str.length - 1) {
+                    // Pad hex column to align ASCII
+                    const padding = ' '.repeat((16 - (i % 16 || 16)) * 3);
+                    result += hex + padding + ' | ' + ascii + '<br>';
+                    hex = '';
+                    ascii = '';
+                }
+            }
+            
+            return result;
+        }
+        
+        // Test direct login.php
+        document.getElementById('testDirectLogin').addEventListener('click', function() {
+            fetch('login.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: 'test@example.com',
+                    password: 'password123',
+                    remember: false
+                }),
+            })
+            .then(response => response.arrayBuffer())
+            .then(buffer => {
+                const decoder = new TextDecoder('utf-8');
+                const text = decoder.decode(buffer);
+                
+                try {
+                    const json = JSON.parse(text);
+                    displayResults(
+                        'Direct Login.php Test',
+                        text,
+                        toHexView(text),
+                        JSON.stringify(json, null, 2)
+                    );
+                } catch (e) {
+                    displayResults(
+                        'Direct Login.php Test',
+                        text,
+                        toHexView(text),
+                        'Failed to parse JSON',
+                        e.toString()
+                    );
+                    
+                    // Analyze the error location
+                    if (e instanceof SyntaxError) {
+                        const match = e.message.match(/position (\d+)/);
+                        if (match && match[1]) {
+                            const pos = parseInt(match[1]);
+                            let context = '';
+                            
+                            // Show 10 characters before and after the error position
+                            const start = Math.max(0, pos - 10);
+                            const end = Math.min(text.length, pos + 10);
+                            
+                            for (let i = start; i < end; i++) {
+                                if (i === pos) {
+                                    context += '<span style="color: red; font-weight: bold;">→</span>';
+                                }
+                                
+                                const charCode = text.charCodeAt(i);
+                                if (charCode >= 32 && charCode <= 126) {
+                                    context += text[i];
+                                } else {
+                                    context += `<span style="color: blue;">[${charCode}]</span>`;
+                                }
+                            }
+                            
+                            displayResults(
+                                'Direct Login.php Test',
+                                text,
+                                toHexView(text),
+                                'Failed to parse JSON',
+                                `${e.toString()}<br><br>Error context: ${context}`
+                            );
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                displayResults(
+                    'Direct Login.php Test',
+                    'Network error',
+                    '',
+                    'Failed to fetch',
+                    error.toString()
+                );
+            });
+        });
+        
+        // Test login_proxy.php
+        document.getElementById('testProxyLogin').addEventListener('click', function() {
+            fetch('login_proxy.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: 'test@example.com',
+                    password: 'password123',
+                    remember: false
+                }),
+            })
+            .then(response => response.arrayBuffer())
+            .then(buffer => {
+                const decoder = new TextDecoder('utf-8');
+                const text = decoder.decode(buffer);
+                
+                try {
+                    const json = JSON.parse(text);
+                    displayResults(
+                        'Login Proxy Test',
+                        text,
+                        toHexView(text),
+                        JSON.stringify(json, null, 2)
+                    );
+                } catch (e) {
+                    displayResults(
+                        'Login Proxy Test',
+                        text,
+                        toHexView(text),
+                        'Failed to parse JSON',
+                        e.toString()
+                    );
+                }
+            })
+            .catch(error => {
+                displayResults(
+                    'Login Proxy Test',
+                    'Network error',
+                    '',
+                    'Failed to fetch',
+                    error.toString()
+                );
+            });
+        });
+        
+        // Test manual JSON parsing
+        document.getElementById('testManualJson').addEventListener('click', function() {
+            // These are examples of valid and invalid JSON
+            const testCases = [
+                { 
+                    name: 'Valid JSON', 
+                    json: '{"success":true,"redirect":"dashboard.html"}' 
+                },
+                { 
+                    name: 'JSON with BOM', 
+                    json: '\uFEFF{"success":true,"redirect":"dashboard.html"}' 
+                },
+                { 
+                    name: 'JSON with leading whitespace', 
+                    json: ' \n\t{"success":true,"redirect":"dashboard.html"}' 
+                },
+                { 
+                    name: 'JSON with PHP tag', 
+                    json: '<?php exit; ?>{"success":true,"redirect":"dashboard.html"}' 
+                },
+                { 
+                    name: 'JSON with invisible control characters',
+                    json: '\u0000{"success":true,"redirect":"dashboard.html"}' 
+                }
+            ];
+            
+            let results = '';
+            
+            testCases.forEach(test => {
+                results += `<h3>${test.name}</h3>`;
+                results += `<div>Raw: ${test.json}</div>`;
+                results += `<div>Hex: ${toHexView(test.json)}</div>`;
+                
+                try {
+                    const json = JSON.parse(test.json);
+                    results += `<div style="color: green;">Parse Result: ${JSON.stringify(json)}</div>`;
+                } catch (e) {
+                    results += `<div style="color: red;">Parse Error: ${e.toString()}</div>`;
+                }
+                
+                results += '<hr>';
+            });
+            
+            output.innerHTML = results;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>Login Test</h1>
+    
+    <div class="container">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter your password">
+        </div>
+        <div class="form-group">
+            <input type="checkbox" id="remember">
+            <label for="remember" style="display: inline;">Remember me</label>
+        </div>
+        <button onclick="login()">Login</button>
+        
+        <div class="response">
+            <h3>Response:</h3>
+            <pre id="response">Not submitted yet</pre>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>Test Credentials:</h2>
+        <ul>
+            <li>For registered users: Use your email and password</li>
+            <li>Test account: test@example.com / password123</li>
+            <li>Any email with password 'test123' will also work (for testing)</li>
+        </ul>
+    </div>
+    
+    <script>
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            
+            if (!email || !password) {
+                document.getElementById('response').textContent = 'Please enter both email and password';
+                return;
+            }
+            
+            // Send login request
+            fetch('login.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    remember: remember
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+                
+                // If login successful and redirect specified, redirect after a delay
+                if (data.success && data.redirect) {
+                    setTimeout(() => {
+                        if (confirm(`Login successful! Redirect to ${data.redirect}?`)) {
+                            window.location.href = data.redirect;
+                        }
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                document.getElementById('response').textContent = `Error: ${error.message}`;
+            });
+        }
+    </script>
+</body>
+</html>

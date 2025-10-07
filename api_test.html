@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            overflow: auto;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Test</h1>
+    
+    <div class="container">
+        <h2>Login Test</h2>
+        <textarea id="loginData">{
+    "email": "test@example.com",
+    "password": "password123",
+    "remember": true
+}</textarea>
+        <button onclick="testAPI('login.php', 'loginData', 'loginResponse')">Test Login API</button>
+        <h3>Response:</h3>
+        <pre id="loginResponse">No response yet</pre>
+    </div>
+    
+    <div class="container">
+        <h2>Register Test</h2>
+        <textarea id="registerData">{
+    "fullName": "Test User",
+    "email": "test@example.com",
+    "password": "password123"
+}</textarea>
+        <button onclick="testAPI('register.php', 'registerData', 'registerResponse')">Test Register API</button>
+        <h3>Response:</h3>
+        <pre id="registerResponse">No response yet</pre>
+    </div>
+    
+    <script>
+        function testAPI(endpoint, dataId, responseId) {
+            const data = document.getElementById(dataId).value;
+            const responseElement = document.getElementById(responseId);
+            
+            try {
+                const jsonData = JSON.parse(data);
+                
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(jsonData)
+                })
+                .then(response => {
+                    return response.text().then(text => {
+                        try {
+                            return JSON.parse(text);
+                        } catch(e) {
+                            console.error('Error parsing JSON:', e);
+                            console.log('Raw response:', text);
+                            return { 
+                                error: 'Invalid JSON response', 
+                                rawResponse: text.substring(0, 500) + (text.length > 500 ? '...' : '') 
+                            };
+                        }
+                    });
+                })
+                .then(data => {
+                    responseElement.textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    responseElement.textContent = 'Error: ' + error.message;
+                });
+            } catch (e) {
+                responseElement.textContent = 'Invalid JSON in input: ' + e.message;
+            }
+        }
+    </script>
+</body>
+</html>
