@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings - FinCtrl</title>
+  <script src="assets/js/ui.js"></script>
+  <script>tailwind={}; tailwind.config={darkMode:'class'};</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{--brand:#00A86B}
+    /* Minimal dark theme overrides */
+    .dark .bg-white{background-color:#0f172a!important}
+    /* Flip common text colors to light for readability */
+    .dark .text-slate-900{color:#f1f5f9!important}
+    .dark .text-slate-800{color:#e2e8f0!important}
+    .dark .text-slate-700{color:#e2e8f0!important}
+    .dark .text-slate-600{color:#cbd5e1!important}
+    .dark .text-slate-500{color:#cbd5e1!important}
+    .dark .border-slate-200{border-color:#334155!important}
+    /* Ensure form controls readable on dark */
+    .dark input, .dark select, .dark textarea { background-color:#ffffff!important; color:#000000!important; }
+    .dark input::placeholder, .dark textarea::placeholder { color:#475569!important; }
+    /* Keep light-hover styles readable in dark mode */
+    .dark .hover\:bg-slate-50:hover { background-color:#1f2937!important; }
+    /* Sidebar links in dark: ensure link text is visible, and active state stands out */
+    .dark #sidebar a { color:#e2e8f0 !important; }
+    .dark #sidebar a.border { border-color:#334155 !important; }
+    .dark #sidebar a.bg-emerald-50 { background-color: rgba(16,185,129,0.12) !important; color:#a7f3d0 !important; }
+  </style>
+</head>
+<script>
+  (function(){ try{ var t = localStorage.getItem('fin.theme'); if (!t){ localStorage.setItem('fin.theme','light'); t='light'; } if (t==='dark') document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); }catch(e){} })();
+  </script>
+<body class="bg-white text-slate-900">
+  <!-- Sidebar (pinned on lg) -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 w-[250px] bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 z-30 flex flex-col">
+    <div class="h-[64px] border-b border-slate-200 px-4 flex items-center gap-3">
+      <a href="dashboard.html?skipOnboarding=1" class="flex items-center gap-2">
+        <img src="assets/images/logo.png" alt="FinCtrl" class="w-7 h-7" />
+        <span class="font-semibold">FinCtrl</span>
+      </a>
+    </div>
+    <nav class="flex-1 p-3 text-sm overflow-y-auto">
+  <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="dashboard.html?skipOnboarding=1">Dashboard</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="transactions.html">Transactions</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="bills.html">Bills</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="insights.html">Insights</a>
+      <a class="block px-3 py-2 rounded-lg border bg-emerald-50 text-emerald-700 border-emerald-200" href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <header class="sticky top-0 bg-white border-b border-slate-200 h-[64px] flex items-center">
+    <div class="lg:pl-[250px] max-w-[1440px] mx-auto w-full px-4 flex items-center justify-end">
+  <a href="dashboard.html?skipOnboarding=1" class="px-3 py-1.5 text-sm rounded border border-slate-200 hover:bg-slate-50">Back to Dashboard</a>
+    </div>
+  </header>
+  <main class="lg:pl-[250px] max-w-[1440px] mx-auto px-4 py-6 space-y-6">
+    <h1 class="text-xl font-semibold">Settings</h1>
+    <!-- Account Settings -->
+    <section class="border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <div class="font-semibold mb-4">Account Settings</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form id="profileFormSettings" class="space-y-4" enctype="multipart/form-data">
+          <div class="flex items-center gap-4">
+            <div class="relative">
+              <div id="avatarCircle" class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl select-none">A</div>
+              <img id="avatarImg" class="w-16 h-16 rounded-full object-cover hidden" alt="avatar" />
+              <button type="button" id="changeAvatarBtn" class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white border border-slate-200 shadow flex items-center justify-center text-base" title="Edit">✏︎</button>
+              <!-- Avatar action menu -->
+              <div id="avatarMenu" class="hidden absolute left-1/2 -translate-x-1/2 mt-2 top-full bg-white border border-slate-200 rounded-md shadow z-50 text-sm">
+                <button id="avatarChange" type="button" class="block w-full text-left px-3 py-2 hover:bg-slate-50">Change photo</button>
+                <button id="avatarRemove" type="button" class="block w-full text-left px-3 py-2 hover:bg-slate-50 text-rose-600">Remove photo</button>
+              </div>
+            </div>
+            <input type="file" id="avatarFile" name="avatar" accept="image/*" class="hidden" />
+            <input type="hidden" id="removeAvatar" name="removeAvatar" value="0" />
+          </div>
+          <div>
+            <label class="text-sm text-slate-600">Name</label>
+            <input type="text" name="name" id="fullName" class="w-full border rounded px-3 py-2" required />
+          </div>
+          <div>
+            <label class="text-sm text-slate-600">Email</label>
+            <div class="flex gap-2">
+              <input type="email" id="email" class="w-full border rounded px-3 py-2" disabled />
+              <button type="button" id="changeEmailBtn" class="px-3 py-2 rounded border border-slate-200 text-sm hover:bg-slate-50">Change Email</button>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button type="submit" class="px-4 py-2 rounded bg-[color:var(--brand)] text-white">Save Changes</button>
+          </div>
+        </form>
+        <form id="passwordForm" class="space-y-4">
+          <div class="font-medium">Change Password</div>
+          <div>
+            <label class="text-sm text-slate-600">Current Password</label>
+            <input type="password" name="current" class="w-full border rounded px-3 py-2" required />
+          </div>
+          <div>
+            <label class="text-sm text-slate-600">New Password</label>
+            <input type="password" name="new" class="w-full border rounded px-3 py-2" required />
+          </div>
+          <div>
+            <label class="text-sm text-slate-600">Confirm New Password</label>
+            <input type="password" name="confirm" class="w-full border rounded px-3 py-2" required />
+          </div>
+          <div class="flex gap-2">
+            <button type="submit" class="px-4 py-2 rounded bg-slate-800 text-white">Change Password</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- App Preferences -->
+    <section class="border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <div class="font-semibold mb-4">App Preferences</div>
+      <form id="prefsForm" class="space-y-4">
+        <div>
+          <label class="text-sm text-slate-600">Theme</label>
+          <div class="mt-1 flex gap-4 text-sm">
+            <label class="flex items-center gap-2"><input type="radio" name="theme" value="system"/> System</label>
+            <label class="flex items-center gap-2"><input type="radio" name="theme" value="light" checked/> Light</label>
+            <label class="flex items-center gap-2"><input type="radio" name="theme" value="dark"/> Dark</label>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <label class="flex items-center gap-2"><input type="checkbox" name="billReminders"/> Bill reminders</label>
+          <label class="flex items-center gap-2"><input type="checkbox" name="appUpdates"/> App updates / news</label>
+          <label class="flex items-center gap-2"><input type="checkbox" name="budget25"/> Budget alert at 25%</label>
+          <label class="flex items-center gap-2"><input type="checkbox" name="budget50"/> Budget alert at 50%</label>
+          <label class="flex items-center gap-2"><input type="checkbox" name="budget100"/> Budget alert at 100%</label>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm text-slate-600">Bill reminder lead time (days)</label>
+            <input type="number" min="1" max="7" step="1" name="leadDays" id="leadDays" class="w-full border rounded px-3 py-2" placeholder="e.g., 2" />
+          </div>
+        </div>
+        <button type="submit" class="px-4 py-2 rounded bg-[color:var(--brand)] text-white">Save Preferences</button>
+      </form>
+    </section>
+
+    <!-- About / Support -->
+    <section class="border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <div class="font-semibold mb-4">About & Support</div>
+      <div class="text-sm space-y-2">
+        <a href="#" id="helpLink" class="text-emerald-700 hover:underline">Help & FAQ</a><br/>
+        <a href="mailto:support@example.com" class="text-emerald-700 hover:underline">Contact Support</a>
+        <div class="text-slate-500">App Version: <span id="appVersion">1.0.0</span></div>
+        <a href="#" id="tosLink" class="text-emerald-700 hover:underline">Terms of Service</a>
+      </div>
+    </section>
+
+    <!-- Delete Account -->
+    <section class="border border-slate-200 rounded-2xl p-5 shadow-sm">
+      <div class="font-semibold mb-2">Delete Account</div>
+      <div class="text-sm text-slate-600 mb-3">This will permanently remove your account and all related data. This action cannot be undone.</div>
+      <button id="deleteAccountBtn" class="px-4 py-2 rounded bg-rose-600 text-white">Delete Account</button>
+      <span id="deleteStatus" class="ml-3 text-sm text-slate-500"></span>
+    </section>
+  </main>
+
+  <!-- Change Email Modal -->
+  <div id="emailModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 z-40">
+    <div class="bg-white rounded-2xl w-full max-w-md p-5 shadow-soft">
+      <div class="flex justify-between items-center mb-3">
+        <div class="font-semibold">Change Email</div>
+        <button class="text-slate-500" data-close-email>&times;</button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-sm text-slate-600">New Email</label>
+          <input type="email" id="newEmail" class="w-full border rounded px-3 py-2" placeholder="you@example.com" />
+        </div>
+        <div class="flex justify-between">
+          <button id="sendEmailOtp" class="px-4 py-2 rounded border">Send Code</button>
+          <div id="emailOtpStatus" class="text-sm text-slate-500"></div>
+        </div>
+        <div>
+          <label class="text-sm text-slate-600">Verification Code</label>
+          <input type="text" id="emailOtp" maxlength="6" class="w-full border rounded px-3 py-2" placeholder="6-digit code" />
+        </div>
+        <div class="flex justify-end gap-2">
+          <button class="px-4 py-2 rounded border" data-close-email>Cancel</button>
+          <button id="confirmEmailBtn" class="px-4 py-2 rounded bg-[color:var(--brand)] text-white">Verify & Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const qs = (s) => document.querySelector(s);
+    const show = (el) => el.classList.remove('hidden');
+    const hide = (el) => el.classList.add('hidden');
+
+    // Apply theme helper
+    function applyTheme(theme){
+      const root = document.documentElement;
+      if (theme === 'dark') { root.classList.add('dark'); localStorage.setItem('fin.theme','dark'); }
+      else { root.classList.remove('dark'); localStorage.setItem('fin.theme','light'); }
+    }
+
+    // Load profile into form
+    (async function(){
+      try{
+        const r = await fetch('get_profile.php', { cache: 'no-store' });
+        const d = await r.json();
+  if (!d || d.success === false) return FinUI.toast(d?.message || 'Failed to load profile','error');
+        qs('#fullName').value = d.name || '';
+        qs('#email').value = d.email || '';
+        const initial = (d.name?.trim()?.charAt(0) || (d.email||'').charAt(0) || '?').toUpperCase();
+        const circle = qs('#avatarCircle'); const img = qs('#avatarImg');
+        circle.textContent = initial;
+        if (d.avatarUrl){ img.src = d.avatarUrl + '?t=' + Date.now(); img.classList.remove('hidden'); circle.classList.add('hidden'); }
+      }catch(e){ console.error(e); }
+    })();
+
+  // Avatar change/remove menu
+    const avatarBtn = qs('#changeAvatarBtn');
+    const avatarMenu = qs('#avatarMenu');
+    avatarBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      avatarMenu.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => { if (!avatarMenu.classList.contains('hidden')) avatarMenu.classList.add('hidden'); });
+    qs('#avatarChange').addEventListener('click', () => {
+      qs('#removeAvatar').value = '0';
+      qs('#avatarFile').click();
+      avatarMenu.classList.add('hidden');
+    });
+    qs('#avatarRemove').addEventListener('click', () => {
+      qs('#removeAvatar').value = '1';
+      const img = qs('#avatarImg'); const circle = qs('#avatarCircle');
+      img.classList.add('hidden'); circle.classList.remove('hidden');
+      avatarMenu.classList.add('hidden');
+    });
+    qs('#avatarFile').addEventListener('change', (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      const url = URL.createObjectURL(file); const img = qs('#avatarImg'); const circle = qs('#avatarCircle');
+      img.src = url; img.classList.remove('hidden'); circle.classList.add('hidden');
+    });
+
+    // Save profile
+    qs('#profileFormSettings').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(qs('#profileFormSettings'));
+      try{
+        const r = await fetch('update_profile.php', { method:'POST', body: fd });
+        const d = await r.json();
+        if (!d.success) return FinUI.toast(d.message || 'Failed to update','error');
+        FinUI.toast('Profile updated','success');
+      }catch(e){ FinUI.toast('Network error','error'); }
+    });
+
+    // Change password
+    qs('#passwordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target; const cur=f.current.value.trim(); const n=f.new.value.trim(); const c=f.confirm.value.trim();
+  if (n.length < 6) return FinUI.toast('New password should be at least 6 characters','warning');
+  if (n !== c) return FinUI.toast('Passwords do not match','warning');
+      try{
+        const r = await fetch('change_password.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ current:cur, password:n }) });
+        const d = await r.json();
+        if (!d.success) return FinUI.toast(d.message || 'Failed to change password','error');
+        FinUI.toast('Password changed','success'); f.reset();
+      }catch(e){ FinUI.toast('Network error','error'); }
+    });
+
+    // Preferences
+    (async function loadPrefs(){
+      try{
+        const r = await fetch('get_preferences.php', { cache:'no-store' });
+        const d = await r.json();
+        if (d && d.success){
+          if (d.prefs?.theme) {
+            const t = d.prefs.theme; const el = document.querySelector(`input[name="theme"][value="${t}"]`); if(el) el.checked = true;
+            applyTheme(t);
+          }
+          const p = d.prefs || {};
+          qs('input[name="billReminders"]').checked = !!p.billReminders;
+          qs('input[name="appUpdates"]').checked = !!p.appUpdates;
+          qs('input[name="budget25"]').checked = !!p.budget25;
+          qs('input[name="budget50"]').checked = !!p.budget50;
+          qs('input[name="budget100"]').checked = !!p.budget100;
+          if (p.leadDays) qs('#leadDays').value = p.leadDays;
+        }
+      }catch(e){ console.error(e); }
+    })();
+
+    qs('#prefsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const theme = document.querySelector('input[name="theme"]:checked')?.value || 'system';
+      const payload = {
+        theme,
+        billReminders: qs('input[name="billReminders"]').checked,
+        appUpdates: qs('input[name="appUpdates"]').checked,
+        budget25: qs('input[name="budget25"]').checked,
+        budget50: qs('input[name="budget50"]').checked,
+        budget100: qs('input[name="budget100"]').checked,
+        leadDays: Math.min(7, Math.max(1, parseInt(qs('#leadDays').value||'2', 10)))
+      };
+      try{
+        const r = await fetch('update_preferences.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const d = await r.json();
+        if (!d.success) return FinUI.toast(d.message || 'Failed to save preferences','error');
+        applyTheme(theme);
+        FinUI.toast('Preferences saved','success');
+      }catch(e){ FinUI.toast('Network error','error'); }
+    });
+
+    // Delete Account flow
+    qs('#deleteAccountBtn').addEventListener('click', async ()=>{
+      const sure = await FinUI.confirm({ title:'Delete Account', message:'This will permanently remove your account and all data. This action cannot be undone.', danger:true, confirmText:'Delete' });
+      if (!sure) return;
+      const ack = await FinUI.prompt({ title:'Confirm deletion', message:'Type OK to confirm account deletion', placeholder:'OK', confirmText:'Confirm' });
+      if ((ack||'').toUpperCase() !== 'OK') return;
+      const btn = qs('#deleteAccountBtn'); const status = qs('#deleteStatus');
+      btn.disabled = true; btn.textContent = 'Deleting...'; status.textContent = '';
+      try{
+        const r = await fetch('delete_account.php', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin' });
+        const d = await r.json();
+        if (d.success) { status.textContent = 'Account deleted'; window.location.href = 'login.html'; }
+        else { status.textContent = d.message || 'Failed to delete account'; }
+      }catch(e){ status.textContent = 'Network error'; }
+      finally{ btn.disabled = false; btn.textContent = 'Delete Account'; }
+    });
+
+    // Change Email flow
+    const emailModal = qs('#emailModal');
+    qs('#changeEmailBtn').addEventListener('click', ()=>{ emailModal.classList.add('flex'); emailModal.classList.remove('hidden'); });
+    document.querySelectorAll('[data-close-email]').forEach(b=> b.addEventListener('click', ()=>{ emailModal.classList.add('hidden'); emailModal.classList.remove('flex'); }));
+    qs('#sendEmailOtp').addEventListener('click', async (ev)=>{
+      ev.preventDefault();
+  const newEmail = qs('#newEmail').value.trim(); if (!newEmail) return FinUI.toast('Enter new email','warning');
+      const btn = qs('#sendEmailOtp'); const status = qs('#emailOtpStatus');
+      btn.disabled = true; btn.textContent = 'Sending...'; status.textContent='';
+      try{
+        const r = await fetch('request_email_change.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email:newEmail }) });
+        const d = await r.json();
+  if (!d.success){ FinUI.toast(d.message || 'Failed to send code','error'); }
+        else { status.textContent = 'Code sent to '+newEmail; }
+  }catch(e){ FinUI.toast('Network error','error'); }
+      finally { btn.disabled = false; btn.textContent = 'Send Code'; }
+    });
+    qs('#confirmEmailBtn').addEventListener('click', async ()=>{
+      const email = qs('#newEmail').value.trim(); const code = qs('#emailOtp').value.trim();
+  if (!email || !code) return FinUI.toast('Enter email and code','warning');
+      try{
+        const r = await fetch('confirm_email_change.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, code }) });
+        const d = await r.json();
+        if (!d.success) return FinUI.toast(d.message || 'Failed to update email','error');
+        qs('#email').value = email; // reflect new email
+        emailModal.classList.add('hidden'); emailModal.classList.remove('flex');
+        FinUI.toast('Email updated','success');
+      }catch(e){ FinUI.toast('Network error','error'); }
+    });
+  </script>
+</body>
+</html>

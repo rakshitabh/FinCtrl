@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bills - FinCtrl</title>
+  <script src="assets/js/ui.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --brand:#00A86B; }
+    .shadow-soft{ box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+    .dark .bg-white{ background-color:#0f172a !important; }
+    .dark .text-slate-900{ color:#f1f5f9 !important; }
+    .dark .text-slate-800{ color:#e2e8f0 !important; }
+    .dark .text-slate-700{ color:#e2e8f0 !important; }
+    .dark .text-slate-600{ color:#cbd5e1 !important; }
+    .dark .text-slate-500{ color:#cbd5e1 !important; }
+    .dark .border-slate-200{ border-color:#334155 !important; }
+    .dark input, .dark select, .dark textarea { background-color:#ffffff !important; color:#000000 !important; }
+    .dark .hover\:bg-slate-50:hover { background-color:#1f2937 !important; }
+    /* Sidebar link colors in dark */
+    .dark #sidebar a { color:#e2e8f0 !important; }
+    .dark #sidebar a.bg-emerald-50 { background-color: rgba(16,185,129,0.12) !important; color:#a7f3d0 !important; }
+    .dark #sidebar a.border { border-color:#334155 !important; }
+  </style>
+  <script>
+  (function(){ try{ var t = localStorage.getItem('fin.theme'); if (!t){ localStorage.setItem('fin.theme','light'); t='light'; } if (t==='dark') document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); }catch(e){} })();
+  </script>
+</head>
+<body class="bg-white text-slate-900">
+  <!-- Sidebar (pinned on lg) -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 w-[250px] bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 z-30 flex flex-col">
+    <div class="h-[64px] border-b border-slate-200 px-4 flex items-center gap-3">
+      <a href="dashboard.html?skipOnboarding=1" class="flex items-center gap-2">
+        <img src="assets/images/logo.png" alt="FinCtrl" class="w-7 h-7" />
+        <span class="font-semibold">FinCtrl</span>
+      </a>
+    </div>
+    <nav class="flex-1 p-3 text-sm overflow-y-auto">
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="dashboard.html?skipOnboarding=1">Dashboard</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="transactions.html">Transactions</a>
+      <a class="block px-3 py-2 rounded-lg border bg-emerald-50 text-emerald-700 border-emerald-200" href="bills.html">Bills</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="insights.html">Insights</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <!-- Top navbar -->
+  <header class="sticky top-0 z-20 bg-white border-b border-slate-200">
+    <div class="lg:pl-[250px] max-w-[1440px] mx-auto px-4 h-[64px] flex items-center justify-end">
+      <a href="dashboard.html?skipOnboarding=1" class="px-3 py-1.5 text-sm rounded border border-slate-200 hover:bg-slate-50">Back to Dashboard</a>
+    </div>
+  </header>
+
+  <main class="lg:pl-[250px] max-w-[1440px] mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-xl font-semibold">Bills</h1>
+      <div class="flex items-center gap-2">
+        <button id="addBillBtn" class="px-3 py-2 rounded bg-[color:var(--brand)] text-white">Add Bill</button>
+      </div>
+    </div>
+
+    <!-- Filters / Summary -->
+    <section class="bg-white border border-slate-200 rounded-2xl p-4 shadow-soft mb-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div>
+          <div class="text-sm text-slate-600">Bills Due This Month</div>
+          <div id="statDueCount" class="text-2xl font-semibold">0</div>
+        </div>
+        <div>
+          <div class="text-sm text-slate-600">Total Due</div>
+          <div id="statTotalDue" class="text-2xl font-semibold">0.00</div>
+        </div>
+        <div>
+          <div class="text-sm text-slate-600">Next Upcoming</div>
+          <div id="statNext" class="text-sm">-</div>
+        </div>
+        <div class="flex items-end text-xs text-slate-500">Reminders will be offered 2 days before due date (if enabled per bill).</div>
+      </div>
+    </section>
+
+    <!-- Bills Table -->
+    <section class="bg-white border border-slate-200 rounded-2xl p-4 shadow-soft">
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm" id="billsTable">
+          <thead class="text-left text-slate-500">
+            <tr>
+              <th class="py-2">Name</th>
+              <th class="py-2">Amount</th>
+              <th class="py-2">Due Date</th>
+              <th class="py-2">Status</th>
+              <th class="py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add Bill Modal -->
+  <div id="billModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 z-40">
+    <div class="bg-white rounded-2xl w-full max-w-md p-5 shadow-soft">
+      <div class="flex justify-between items-center mb-3">
+        <div class="font-semibold">Add Bill</div>
+        <button class="text-slate-500" data-close>&times;</button>
+      </div>
+      <form id="billForm" class="space-y-3">
+        <div>
+          <label class="text-sm text-slate-600">Name</label>
+          <input type="text" id="bName" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div>
+          <label class="text-sm text-slate-600">Amount</label>
+          <input type="number" step="0.01" id="bAmount" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div>
+          <label class="text-sm text-slate-600">Due Date</label>
+          <input type="date" id="bDue" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="bRemind" /> Email reminder 2 days before due date</label>
+        <div class="text-xs text-slate-500">Due date must be after today.</div>
+        <div class="flex justify-end gap-2 mt-2">
+          <button type="button" class="px-4 py-2 rounded border" data-close>Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded bg-[color:var(--brand)] text-white">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const qs = (s) => document.querySelector(s);
+    const show = (el) => el.classList.remove('hidden');
+    const hide = (el) => el.classList.add('hidden');
+
+    // Modal wiring
+    const billModal = qs('#billModal');
+    qs('#addBillBtn').addEventListener('click', ()=>{
+      qs('#billForm').reset();
+      // Enforce min = tomorrow
+      const today = new Date();
+      const tmr = new Date(today.getFullYear(), today.getMonth(), today.getDate()+1);
+      const ym = tmr.toISOString().slice(0,10);
+      const dueEl = qs('#bDue'); if (dueEl) dueEl.min = ym;
+      show(billModal);
+    });
+    document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => hide(billModal)));
+
+    // Add bill submit
+    qs('#billForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        name: qs('#bName').value.trim(),
+        amount: parseFloat(qs('#bAmount').value),
+        dueDate: qs('#bDue').value,
+        remind: !!qs('#bRemind').checked
+      };
+  if (!payload.name || !payload.amount || !payload.dueDate) { FinUI.toast('Please fill all fields','warning'); return; }
+      // Client-side due date must be after today
+      try{
+        const chosen = new Date(payload.dueDate+'T00:00:00');
+        const today = new Date(); const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  if (chosen <= todayMid) { FinUI.toast('Due date must be after today','warning'); return; }
+      }catch(_){ /* ignore */ }
+      try{
+        const r = await fetch('add_bill.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload), credentials:'same-origin' });
+        const d = await r.json();
+        if (r.ok && d.success){
+          // Persist per-bill reminder opt-in locally
+          if (payload.remind && d.userId && d.id){ localStorage.setItem(`fin.bill.remind:${d.userId}:${d.id}`, '1'); }
+          hide(billModal); await loadBills();
+        }
+        else { FinUI.toast(d.message || 'Failed to add bill','error'); }
+      }catch(err){ FinUI.toast('Network error','error'); }
+    });
+
+    function fmt(n){ return (Number(n)||0).toFixed(2); }
+
+    function reminderKey(userId, bill){
+      return `fin.reminder.sent:${userId}:${bill.id}:${bill.dueDate}`;
+    }
+
+    async function loadBills(){
+      const r = await fetch('list_bills.php', { credentials:'same-origin', cache:'no-store' });
+      const d = await r.json();
+      if (!r.ok || d.success === false) { console.error(d); return; }
+      const tbody = qs('#billsTable tbody');
+      tbody.innerHTML = '';
+      const items = d.items || [];
+      // Summary
+      const now = new Date();
+      const mStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const mEnd = new Date(now.getFullYear(), now.getMonth()+1, 0);
+      let dueCount = 0, totalDue = 0; let nextText = '-';
+      const upcoming = items.filter(b => !b.isPaid && new Date(b.dueDate) >= new Date()).sort((a,b)=> new Date(a.dueDate) - new Date(b.dueDate));
+      if (upcoming.length) nextText = `${upcoming[0].name} - ${fmt(upcoming[0].amount)} due ${new Date(upcoming[0].dueDate).toLocaleDateString()}`;
+      items.forEach(b => {
+        const dDt = new Date(b.dueDate);
+        const withinMonth = dDt >= mStart && dDt <= mEnd;
+        if (withinMonth && !b.isPaid) { dueCount++; totalDue += Number(b.amount)||0; }
+        const tr = document.createElement('tr');
+        const status = b.isPaid ? '<span class="text-emerald-600">Paid</span>' : '<span class="text-amber-600">Due</span>';
+        tr.innerHTML = `
+          <td class="py-2">${b.name}</td>
+          <td class="py-2">${fmt(b.amount)}</td>
+          <td class="py-2">${b.dueDate}</td>
+          <td class="py-2">${status}</td>
+          <td class="py-2">
+            ${b.isPaid ? '' : `<button class="px-2 py-1 text-xs rounded border border-slate-200 hover:bg-slate-50" data-paid="${b.id}">Mark Paid</button>`}
+            <button class="px-2 py-1 text-xs rounded border border-slate-200 hover:bg-slate-50 text-rose-600" data-del="${b.id}">Delete</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+      qs('#statDueCount').textContent = String(dueCount);
+      qs('#statTotalDue').textContent = fmt(totalDue);
+      qs('#statNext').textContent = nextText;
+
+      // Bind actions
+      tbody.querySelectorAll('[data-paid]').forEach(btn => btn.addEventListener('click', async (ev) => {
+        const id = parseInt(ev.currentTarget.getAttribute('data-paid'),10);
+        try{
+          const r = await fetch('mark_bill_paid.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id }), credentials:'same-origin' });
+          const d = await r.json();
+          if (r.ok && d.success) await loadBills(); else FinUI.toast(d.message || 'Failed to update','error');
+        }catch(e){ FinUI.toast('Network error','error'); }
+      }));
+      tbody.querySelectorAll('[data-del]').forEach(btn => btn.addEventListener('click', async (ev) => {
+        const id = parseInt(ev.currentTarget.getAttribute('data-del'),10);
+  const ok = await FinUI.confirm({ title:'Delete bill', message:'Are you sure you want to delete this bill?', danger:true, confirmText:'Delete' }); if (!ok) return;
+        try{
+          const r = await fetch('delete_bill.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id }), credentials:'same-origin' });
+          const d = await r.json();
+          if (r.ok && d.success) await loadBills(); else FinUI.toast(d.message || 'Failed to delete','error');
+        }catch(e){ FinUI.toast('Network error','error'); }
+      }));
+      // Auto prompt reminders for bills due in exactly 2 days and opted-in
+      await autoPromptReminders(d.userId, items);
+    }
+
+    function daysUntil(dateStr){
+      const d = new Date(dateStr+'T00:00:00');
+      const now = new Date(); const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const diffMs = d.getTime() - today.getTime();
+      return Math.round(diffMs / (24*60*60*1000));
+    }
+
+    async function autoPromptReminders(userId, bills){
+      // Requires per-bill opt-in from localStorage
+      for (const b of bills){
+        if (b.isPaid) continue;
+        const optKey = `fin.bill.remind:${userId}:${b.id}`;
+        if (!localStorage.getItem(optKey)) continue;
+        const days = daysUntil(b.dueDate);
+        if (days === 2){
+          const sentKey = reminderKey(userId, b);
+          if (localStorage.getItem(sentKey)) continue;
+          const ok = await FinUI.confirm({ title:'Send reminder', message:`Send reminder for ${b.name} due on ${b.dueDate}?`, confirmText:'Send' });
+          if (!ok) continue;
+          try{
+            const r = await fetch('send_bill_reminder.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id: b.id }), credentials:'same-origin' });
+            const o = await r.json();
+            if (r.ok && o.success){ localStorage.setItem(sentKey, String(Date.now())); }
+          }catch(_){ }
+        }
+      }
+    }
+
+    (async function init(){ await loadBills(); })();
+  </script>
+</body>
+</html>

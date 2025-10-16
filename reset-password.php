@@ -32,7 +32,7 @@ $_SESSION['reset_token'] = $_GET['token'];
         <!-- Left panel with form -->
         <div class="auth-form-panel">
             <a href="index.html" class="logo">
-                <img src="assets/images/logo.svg" alt="FinCtrl Logo" class="logo-img">
+                <img src="assets/images/logo.png" alt="FinCtrl Logo" class="logo-img">
                 FinCtrl
             </a>
             

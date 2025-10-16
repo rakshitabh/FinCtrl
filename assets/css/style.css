@@ -1,11 +1,13 @@
 /* Base Styles & CSS Variables */
 :root {
     /* Theme Colors */
-    --primary: #4CAF50;
-    --primary-rgb: 76, 175, 80;
-    --primary-dark: #388E3C;
-    --secondary: #2196F3;
-    --secondary-rgb: 33, 150, 243;
+    /* Brand green aligned with dashboard */
+    --primary: #00A86B;
+    --primary-rgb: 0, 168, 107;
+    --primary-dark: #008F5C;
+    /* Match secondary to primary to remove blue tint on landing/auth */
+    --secondary: #00A86B;
+    --secondary-rgb: 0, 168, 107;
     --background: #F8F9FA;
     --surface: #FFFFFF;
     --surface-shadow: rgba(0, 0, 0, 0.05);
@@ -81,7 +83,7 @@ p {
 }
 
 .gradient-text {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
@@ -127,9 +129,7 @@ p {
     gap: var(--space-sm);
 }
 
-.logo-img {
-    height: 2rem;
-}
+.logo-img { height: 2.5rem; }
 
 .nav-links {
     display: flex;
@@ -159,7 +159,13 @@ p {
 
 .nav-link:hover {
     color: var(--primary);
+    background-color: transparent; /* keep transparent so text stays readable */
 }
+
+/* Dark theme compatibility: keep hover backgrounds dark to maintain contrast */
+.dark .hover\:bg-slate-50:hover { background-color: #1f2937 !important; }
+.dark .btn:hover { filter: brightness(1.1); }
+.dark .btn-outline:hover { background: #1f2937; color: var(--dark-text); border-color: #475569; }
 
 .nav-link:hover::after {
     width: 100%;
@@ -232,7 +238,7 @@ p {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.05), rgba(var(--secondary-rgb), 0.05));
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), rgba(var(--primary-rgb), 0.03));
     z-index: -1;
 }
 
@@ -317,7 +323,7 @@ p {
     z-index: 2;
     width: 90%;
     max-width: 400px;
-    background: linear-gradient(135deg, var(--surface), rgba(var(--primary-rgb), 0.05));
+    background: linear-gradient(135deg, var(--surface), rgba(var(--primary-rgb), 0.06));
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -716,3 +722,30 @@ p {
         scroll-behavior: auto !important;
     }
 }
+
+/* --- Global dark theme overrides and hover/readability fixes --- */
+/* Map base variables to dark-friendly values when .dark is on <html> */
+.dark {
+    --background: #000000; /* black body background */
+    --surface: #111827;    /* dark surfaces (cards/nav) */
+    --text: #ffffff;       /* white text */
+    --text-secondary: #cbd5e1; /* slate-300 */
+}
+
+/* Dark navbar background to improve contrast */
+.dark .navbar { background: rgba(15, 23, 42, 0.95); }
+
+/* Ensure hover backgrounds in dark mode do not turn text unreadable */
+.dark .hover\:bg-slate-50:hover { background-color: #1f2937 !important; }
+
+/* Avoid large translateY on hover that can cause overlap/clipping in tight layouts */
+.btn-primary:hover, .btn-outline:hover, .btn-glow:hover { transform: translateY(-1px); }
+
+/* Force body baseline in dark to align with requirement (white text on black bg) */
+.dark body { background:#000000; color:#ffffff; }
+
+/* Buttons visual in dark: keep green readable */
+.dark .btn-primary { background: var(--primary); color:#ffffff; }
+.dark .btn-primary:hover { background: var(--primary-dark); }
+.dark .btn-outline { border-color:#94a3b8; color:#e2e8f0; }
+.dark .btn-outline:hover { background:#1f2937; color:#f8fafc; }

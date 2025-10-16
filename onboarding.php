@@ -22,6 +22,7 @@ $currency = isset($input['currency']) ? trim($input['currency']) : null;
 $emailAlerts = isset($input['emailAlerts']) ? (bool)$input['emailAlerts'] : false;
 
 if ($monthly <= 0) output_json(false, 'Monthly budget must be greater than 0');
+if (!$currency) output_json(false, 'Preferred currency is required');
 
 try{
   $db = Database::getInstance();
@@ -35,14 +36,14 @@ try{
 
   if ($profile) {
     $db->update('user_profiles', [
-      'currency' => $currency ?: 'USD',
+      'currency' => $currency,
       'notification_preferences' => $prefs,
       'updated_at' => $now
     ], 'user_id = :user_id', ['user_id' => $userId]);
   } else {
     $db->insert('user_profiles', [
       'user_id' => $userId,
-      'currency' => $currency ?: 'USD',
+      'currency' => $currency,
       'notification_preferences' => $prefs,
       'updated_at' => $now
     ]);

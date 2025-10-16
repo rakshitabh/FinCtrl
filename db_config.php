@@ -1,11 +1,11 @@
 <?php
 // Database configuration
 return [
-    'host' => 'localhost',
+    'host' => 'dpg-d3ojf3er433s73a56g00-a',
     'port' => '5432',
     'database' => 'finctrl',
-    'username' => 'postgres',
-    'password' => 'postgres',  // Replace with your actual password
+    'username' => 'rakshita',
+    'password' => 'KEzpmC8ibqEKmN05alSlHJQehxfMNDvp',  // Replace with your actual password
     'charset' => 'utf8',
     'schema' => 'public'
 ];

@@ -12,13 +12,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>(function(){try{var t=localStorage.getItem('fin.theme');if(!t){localStorage.setItem('fin.theme','light');t='light';}if(t==='dark')document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark');}catch(e){}})();</script>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
                 <a href="index.html" class="logo">
-                    <img src="assets/images/logo.svg" alt="FinCtrl Logo" class="logo-img">
+                    <img src="assets/images/logo.png?v=20251017" alt="FinCtrl Logo" class="logo-img">
                     FinCtrl
                 </a>
                 <h1>Welcome Back</h1>
@@ -55,13 +56,7 @@
                 
                 <button type="submit" class="btn btn-primary btn-large btn-block">Login</button>
                 
-                <div class="auth-divider">
-                    <span>OR</span>
-                </div>
-                
-                <button type="button" class="btn btn-google btn-large btn-block">
-                    <i class="fab fa-google"></i> Login with Google
-                </button>
+                <!-- Removed Google login per requirement -->
                 
                 <div class="auth-footer">
                     Don't have an account? <a href="signup.html">Sign Up</a>

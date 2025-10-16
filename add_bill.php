@@ -30,6 +30,7 @@ try {
     $name = isset($input['name']) ? trim((string)$input['name']) : '';
     $amount = isset($input['amount']) ? (float)$input['amount'] : 0.0;
     $dueDate = $input['dueDate'] ?? null;
+    $remind = isset($input['remind']) ? (bool)$input['remind'] : false;
 
     if ($name === '' || $amount <= 0 || !$dueDate) {
         respond(['success' => false, 'message' => 'Missing or invalid fields'], 422);
@@ -38,6 +39,11 @@ try {
     try {
         $dt = new DateTime($dueDate);
         $dueDate = $dt->format('Y-m-d');
+        // Must be strictly after today
+        $today = (new DateTime('today'))->format('Y-m-d');
+        if ($dueDate <= $today) {
+            respond(['success' => false, 'message' => 'Due date must be after today'], 422);
+        }
     } catch (Throwable $e) {
         respond(['success' => false, 'message' => 'Invalid date format'], 422);
     }
@@ -53,7 +59,7 @@ try {
         'is_recurring' => false,
     ]);
 
-    respond(['success' => true, 'id' => $billId, 'message' => 'Bill added']);
+    respond(['success' => true, 'id' => $billId, 'userId' => $userId, 'remind' => $remind, 'message' => 'Bill added']);
 } catch (Throwable $e) {
     respond(['success' => false, 'message' => 'Server error', 'error' => $e->getMessage()], 500);
 }
