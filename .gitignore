@@ -22,3 +22,15 @@ logs/
 
 # Ignore sensitive files
 smtp_config.php
+
+# Ignore backup and temp artifacts
+*.bak
+*.backup.*
+*.old
+*.orig
+*~
+*.tmp
+backup/
+dashboard.backup.html
+assets/js/auth.js.bak
+assets/uploads/
