@@ -4,45 +4,36 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Onboarding - FinCtrl</title>
-  <link rel="stylesheet" href="assets/css/styles.css" />
-  <style>
-    body{font-family:Arial, sans-serif;background:#f7f9fb;margin:0}
-    .container{max-width:720px;margin:40px auto;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.06)}
-    .header{padding:24px 28px;border-bottom:1px solid #f0f2f5;display:flex;align-items:center;gap:12px}
-    .logo{width:36px;height:36px;background:#4CAF50;border-radius:8px}
-    h1{font-size:22px;margin:0}
-    .content{padding:28px}
-    .intro{color:#64748b;margin:0 0 18px}
-    .form-group{margin-bottom:18px}
-    label{display:block;margin-bottom:8px;color:#334155;font-weight:600}
-    input,select{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:8px;outline:none}
-    input:focus,select:focus{border-color:#4CAF50;box-shadow:0 0 0 3px rgba(76,175,80,.15)}
-    .checkbox{display:flex;align-items:center;gap:10px;margin:4px 0 6px}
-    .actions{display:flex;gap:12px;margin-top:22px}
-    .btn{padding:12px 16px;border:none;border-radius:8px;cursor:pointer}
-    .btn-primary{background:#4CAF50;color:#fff}
-    .btn-secondary{background:#e2e8f0;color:#0f172a}
-    .error{color:#dc2626;margin-top:8px}
-    .success{color:#16a34a;margin-top:8px}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="logo"></div>
-      <h1>Welcome! Lets personalize your dashboard</h1>
-    </div>
-    <div class="content">
-      <p class="intro">Provide a few details to get the best experience. You can change these later in Profile.</p>
-      <form id="onboardingForm">
-        <div class="form-group">
-          <label for="monthlyBudget">Monthly budget</label>
-          <input type="number" step="0.01" id="monthlyBudget" placeholder="e.g. 1500" required />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { brand: { 500: '#10b981' } } } }
+    }
+  </script>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:," />
+  <style>body{background:#f7f9fb}.dark body{background:#0f172a}</style>
+  </head>
+<script>(function(){try{var t=localStorage.getItem('fin.theme');if(!t){localStorage.setItem('fin.theme','light');t='light';}if(t==='dark')document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark');}catch(e){}})();</script>
+<body class="min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-xl">
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      <div class="px-6 py-5 border-b border-slate-200 flex items-center gap-3">
+        <img src="assets/images/logo.png" alt="Logo" class="w-9 h-9 rounded-lg" />
+        <div>
+          <h1 class="text-xl font-semibold">Let’s set up your account</h1>
+          <p class="text-slate-500 text-sm">Provide your monthly budget and preferred currency to personalize the dashboard.</p>
         </div>
-        <div class="form-group">
-          <label for="currency">Preferred currency (optional)</label>
-          <select id="currency">
-            <option value="">Select currency</option>
+      </div>
+      <form id="onboardingForm" class="p-6 space-y-4">
+        <div>
+          <label class="block text-slate-700 font-medium mb-2" for="monthlyBudget">Monthly budget</label>
+          <input id="monthlyBudget" type="number" step="0.01" min="0" placeholder="e.g. 1500" required class="w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block text-slate-700 font-medium mb-2" for="currency">Preferred currency</label>
+          <select id="currency" required class="w-full rounded-lg border border-slate-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="" disabled selected>Select currency</option>
             <option value="USD">USD</option>
             <option value="EUR">EUR</option>
             <option value="GBP">GBP</option>
@@ -50,45 +41,89 @@
             <option value="JPY">JPY</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>Notification preferences</label>
-          <div class="checkbox">
-            <input type="checkbox" id="emailAlerts" />
-            <label for="emailAlerts">Email alerts</label>
-          </div>
+        <div class="flex items-center gap-2">
+          <input id="emailAlerts" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+          <label for="emailAlerts" class="text-slate-700">Enable email alerts</label>
         </div>
-        <div class="actions">
-          <button type="submit" class="btn btn-primary">Save and Continue</button>
-          <button type="button" id="skipBtn" class="btn btn-secondary">Skip for now</button>
+        <div id="msg" class="hidden text-sm"></div>
+        <div class="pt-2">
+          <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 text-white px-4 py-2 font-medium hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">Save and continue</button>
         </div>
-        <div id="msg" class="error" style="display:none"></div>
       </form>
     </div>
   </div>
+
   <script>
     function showMsg(text, ok=false){
       const el = document.getElementById('msg');
-      el.className = ok ? 'success' : 'error';
-      el.textContent = text; el.style.display = 'block';
+      el.className = ok ? 'text-emerald-600 text-sm' : 'text-rose-600 text-sm';
+      el.textContent = text; el.classList.remove('hidden');
     }
 
-    document.getElementById('skipBtn').addEventListener('click', () => {
-      window.location.href = 'dashboard.html';
-    });
+    // Prefill currency based on browser locale (keeps UI-only; server still enforces)
+    (function prefillCurrency(){
+      try{
+        const sel = document.getElementById('currency');
+        if (!sel) return;
+        // 0) User preference saved locally wins
+        const saved = (typeof localStorage !== 'undefined') ? localStorage.getItem('preferredCurrency') : '';
+        if (saved && Array.from(sel.options).some(o => o.value === saved)) {
+          sel.value = saved;
+          return;
+        }
+        // Don't override if a value is already set
+        if (sel.value) return;
+        const options = Array.from(sel.options).map(o => o.value);
+
+        // 1) Prefer time zone mapping
+        let cur = '';
+        const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '').toLowerCase();
+        if (tz === 'asia/kolkata' || tz === 'asia/calcutta') cur = 'INR';
+
+        // 2) Fallback to region from navigator.languages or navigator.language
+        if (!cur) {
+          const langs = Array.isArray(navigator.languages) && navigator.languages.length ? navigator.languages : [navigator.language || ''];
+          let region = '';
+          for (const lang of langs){
+            const part = (lang || '').toLowerCase();
+            const seg = part.split('-')[1];
+            if (seg){ region = seg.toUpperCase(); break; }
+          }
+          const eu = new Set(['AT','BE','CY','EE','FI','FR','DE','GR','IE','IT','LV','LT','LU','MT','NL','PT','SK','SI','ES']);
+          if (region === 'IN') cur = 'INR';
+          else if (region === 'US') cur = 'USD';
+          else if (region === 'GB') cur = 'GBP';
+          else if (region === 'JP') cur = 'JPY';
+          else if (eu.has(region)) cur = 'EUR';
+        }
+
+        if (cur && options.includes(cur)) sel.value = cur;
+      } catch(_e) { /* no-op */ }
+    })();
+
+    // Save preference when user changes currency once
+    (function bindCurrencyPersist(){
+      const sel = document.getElementById('currency');
+      if (!sel) return;
+      sel.addEventListener('change', () => {
+        try { if (sel.value) localStorage.setItem('preferredCurrency', sel.value); } catch(_e){}
+      });
+    })();
 
     document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const budget = parseFloat(document.getElementById('monthlyBudget').value);
-      const currency = document.getElementById('currency').value || null;
+      const currency = document.getElementById('currency').value;
       const emailAlerts = document.getElementById('emailAlerts').checked;
       if (isNaN(budget) || budget <= 0) { showMsg('Please enter a valid monthly budget'); return; }
+      if (!currency) { showMsg('Please select your preferred currency'); return; }
       try {
         const res = await fetch('onboarding.php', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ monthlyBudget: budget, currency, emailAlerts })
         });
         const data = await res.json();
-        if (data.success) { window.location.href = 'dashboard.html'; }
+  if (data.success) { window.location.href = 'dashboard.html?skipOnboarding=1'; }
         else { showMsg(data.message || 'Failed to save settings'); }
       } catch(err){ showMsg('Network error. Try again.'); }
     });

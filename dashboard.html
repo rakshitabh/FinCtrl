@@ -4,87 +4,249 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard - FinCtrl</title>
+  <script src="assets/js/ui.js"></script>
+  <link rel="stylesheet" href="assets/css/style.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-slate-50 text-slate-900">
-  <div class="grid grid-cols-12 min-h-screen">
-    <!-- Sidebar -->
-    <aside class="col-span-12 md:col-span-3 lg:col-span-2 bg-slate-900 text-slate-100 p-5 space-y-4">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-md bg-emerald-500"></div>
-        <h2 class="text-lg font-semibold">FinCtrl</h2>
-      </div>
-      <nav class="space-y-1">
-        <a class="block px-3 py-2 rounded hover:bg-slate-800" href="dashboard.html">Dashboard</a>
-        <button id="addExpense" class="w-full text-left px-3 py-2 rounded hover:bg-slate-800">Add Expense</button>
-        <button id="addBill" class="w-full text-left px-3 py-2 rounded hover:bg-slate-800">Bills</button>
-        <a class="block px-3 py-2 rounded hover:bg-slate-800" href="#">Reports</a>
-        <a class="block px-3 py-2 rounded hover:bg-slate-800" href="#">Profile</a>
-      </nav>
-    </aside>
+  <style>
+    :root { --brand:#00A86B; }
+    .shadow-soft{ box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+  /* Fix: In dark mode, prevent light hover background on sidebar links (kept unreadable with light text) */
+  .dark #sidebar a.hover\:bg-slate-50:hover { background-color:#1f2937 !important; }
+    /* Dark theme overrides */
+    .dark .bg-white{ background-color:#0f172a !important; color:#e5e7eb !important; }
+    .dark .text-slate-900{ color:#f1f5f9 !important; }
+    .dark .text-slate-800{ color:#e2e8f0 !important; }
+    .dark .text-slate-700{ color:#e2e8f0 !important; }
+  .dark .text-slate-600{ color:#cbd5e1 !important; }
+  .dark .text-slate-500{ color:#cbd5e1 !important; }
+    .dark .border-slate-200{ border-color:#334155 !important; }
+  /* Fix: Globally avoid light hover backgrounds in dark mode for elements using hover:bg-slate-50 */
+  .dark .hover\:bg-slate-50:hover { background-color:#1f2937 !important; }
+    /* Ensure form controls stay readable in dark mode */
+    .dark input, .dark select, .dark textarea {
+      background-color:#ffffff !important;
+      color:#000000 !important;
+    }
+    .dark input::placeholder, .dark textarea::placeholder { color:#475569 !important; }
 
-    <!-- Main -->
-    <main class="col-span-12 md:col-span-9 lg:col-span-10">
-      <!-- Topbar -->
-      <div class="flex items-center justify-between bg-white border-b border-slate-200 px-5 py-3">
-        <div class="flex items-center gap-3">
-          <div class="w-7 h-7 rounded bg-emerald-500"></div>
-          <div class="font-semibold">Dashboard</div>
-        </div>
-        <div class="flex items-center gap-2">
-          <button id="themeToggle" class="px-3 py-2 rounded bg-slate-800 text-white">Toggle Theme</button>
-          <button id="logoutBtn" class="px-3 py-2 rounded bg-emerald-600 text-white">Logout</button>
-        </div>
+    /* Navbar custom styles */
+    .nav-dark { background:#1e1e2f; color:#ffffff; }
+    /* Hamburger (3 lines) animation to X */
+    .hamburger { width: 28px; height: 22px; position: relative; display: inline-block; }
+    .hamburger span { position:absolute; left:0; right:0; height:3px; background:#ffffff; border-radius:2px; transition: transform .25s ease, opacity .2s ease, top .25s ease; }
+    .hamburger span:nth-child(1){ top:0; }
+    .hamburger span:nth-child(2){ top:9px; }
+    .hamburger span:nth-child(3){ top:18px; }
+    .hamburger.open span:nth-child(1){ top:9px; transform: rotate(45deg); }
+    .hamburger.open span:nth-child(2){ opacity:0; }
+    .hamburger.open span:nth-child(3){ top:9px; transform: rotate(-45deg); }
+    /* Search input */
+    .top-search { background:#f5f5f5; border:none; height:40px; border-radius:9999px; padding-left:14px; padding-right:38px; color:#111827; width:100%; }
+    .top-search::placeholder{ color:#6b7280; }
+  </style>
+  <script>
+    // Apply persisted theme early to minimize FOUC
+    (function(){
+      try{
+        var t = localStorage.getItem('fin.theme');
+        if (!t) { localStorage.setItem('fin.theme','light'); t = 'light'; }
+        if (t === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      }catch(e){}
+    })();
+  </script>
+  </head>
+<body class="bg-[color:var(--background)] text-[color:var(--text)]">
+  <!-- Top Bar: 70px fixed, dark navy -->
+  <header class="sticky top-0 z-20 nav-dark">
+    <div class="max-w-[1440px] mx-auto px-3 sm:px-4 lg:px-6 h-[70px] grid grid-cols-3 items-center">
+      <!-- Left: Hamburger + Logo -->
+      <div class="flex items-center gap-3 justify-self-start">
+        <button id="hamburgerBtn" aria-label="Toggle menu" aria-expanded="false" class="hamburger">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="dashboard.html?skipOnboarding=1" class="flex items-center gap-2 text-white">
+          <img src="assets/images/logo.png?v=20251017" alt="FinCtrl" class="w-10 h-10" />
+          <span class="font-semibold hidden sm:inline">FinCtrl</span>
+        </a>
       </div>
 
-      <!-- Cards -->
-      <section class="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-4 p-5">
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
-          <div class="text-slate-500">Total Budget</div>
-          <div id="totalBudget" class="text-2xl font-semibold">-</div>
+      <!-- Center: Welcome text -->
+      <div class="justify-self-center w-full text-center">
+        <div class="text-white text-sm sm:text-base">Welcome, <span id="welcomeName">User</span></div>
+      </div>
+
+      <!-- Right: Notification + Profile -->
+      <div class="flex items-center gap-2 sm:gap-3 justify-self-end">
+        <div class="relative">
+          <button id="notifyBtn" class="relative p-2 rounded-full hover:bg-white/10 text-white" title="Notifications">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7a6 6 0 10-12 0v.7a8.967 8.967 0 01-2.311 6.022c1.78.68 3.62 1.1 5.454 1.31"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.25 17.25a3.75 3.75 0 007.5 0"/></svg>
+            <span id="notifyDot" class="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 hidden"></span>
+          </button>
+          <!-- Notification dropdown -->
+          <div id="notifyPanel" class="hidden absolute right-0 mt-2 w-72 bg-white text-slate-900 border border-slate-200 rounded-lg shadow z-50">
+            <div class="px-3 py-2 border-b text-sm font-medium">Notifications</div>
+            <div class="max-h-60 overflow-y-auto">
+              <div class="px-3 py-2 text-sm hover:bg-slate-50">No new notifications</div>
+            </div>
+          </div>
         </div>
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
-          <div class="text-slate-500">Total Expenses</div>
-          <div id="totalExpenses" class="text-2xl font-semibold">-</div>
+        <div class="relative">
+          <button id="profileBtn" class="p-1 rounded-full hover:bg-white/10 text-white flex items-center justify-center" title="Profile">
+            <img id="navAvatarImg" class="w-8 h-8 rounded-full object-cover hidden" alt="avatar" />
+            <svg id="navAvatarFallback" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.5 20.25a8.25 8.25 0 1115 0v.75H4.5v-.75z"/></svg>
+          </button>
+          <div id="profileMenu" class="hidden absolute right-0 mt-2 w-44 bg-white text-slate-900 border border-slate-200 rounded-lg shadow z-50">
+            <button class="w-full text-left px-3 py-2 hover:bg-slate-50 text-sm" data-menu="profile">Profile</button>
+            <a class="block px-3 py-2 hover:bg-slate-50 text-sm" href="settings.html">Settings</a>
+            <div class="my-1 h-px bg-slate-200"></div>
+            <button class="w-full text-left px-3 py-2 hover:bg-slate-50 text-sm text-rose-600" data-menu="logout">Logout</button>
+          </div>
         </div>
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
-          <div class="text-slate-500">Remaining Budget</div>
-          <div id="remainingBudget" class="text-2xl font-semibold">-</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar (hidden by default, 250px) -->
+  <div id="backdrop" class="fixed inset-0 bg-black/30 hidden"></div>
+  <aside id="sidebar" class="fixed inset-y-0 left-0 w-[250px] bg-white border-r border-slate-200 transform -translate-x-full transition-transform duration-200 z-30 flex flex-col">
+    <div class="h-[80px] border-b border-slate-200 px-4 flex items-center gap-3">
+      <a href="dashboard.html?skipOnboarding=1" class="flex items-center gap-2">
+        <img src="assets/images/logo.png?v=20251017" alt="Logo" class="w-10 h-10" />
+        <span class="font-semibold">FinCtrl</span>
+      </a>
+    </div>
+    <nav class="flex-1 p-3 text-sm overflow-y-auto">
+  <a class="block px-3 py-2 rounded-lg border active bg-emerald-50 text-emerald-700 border-emerald-200" href="dashboard.html?skipOnboarding=1">Dashboard</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="bills.html">Bills</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="transactions.html">Transactions</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="insights.html">Insights</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="settings.html">Settings</a>
+    </nav>
+    <div class="p-3 border-t text-xs text-slate-600">
+      <button id="sidebarLogout" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4 mr-2 text-rose-600">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9l3 3m0 0l-3 3m3-3H3"/>
+        </svg>
+        Log out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Page Container (1440x1024 frame) -->
+  <div>
+    <main class="max-w-[1440px] min-h-[1024px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <!-- Quick Stats -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <!-- Total Expenses -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-soft hover:shadow transition">
+          <div class="text-slate-500 text-sm">Total Expenses (This Month)</div>
+          <div id="qsTotalExpenses" class="text-2xl font-semibold mt-1">-</div>
+          <div class="mt-3">
+            <button id="qsExpensesBtn" class="text-sm text-emerald-700 hover:underline">View Details</button>
+          </div>
         </div>
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
-          <div class="text-slate-500">Upcoming Bill</div>
-          <div id="upcomingBill" class="text-2xl font-semibold">-</div>
+        <!-- Monthly Budget -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-soft hover:shadow transition">
+          <div class="text-slate-500 text-sm">Monthly Budget</div>
+          <div class="flex items-center justify-between mt-1">
+            <div id="qsRemaining" class="text-2xl font-semibold">-</div>
+            
+          </div>
+          <div class="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div id="qsBudgetBar" class="h-2 bg-[color:var(--brand)]" style="width:0%"></div>
+          </div>
+          <div class="mt-3">
+            <button id="qsBudgetBtn" class="text-sm text-emerald-700 hover:underline">Adjust Budget</button>
+          </div>
+        </div>
+        <!-- Bills Due -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-soft hover:shadow transition">
+          <div class="text-slate-500 text-sm">Bills Due</div>
+          <div class="flex items-center justify-between mt-1">
+            <div id="qsBillsDue" class="text-2xl font-semibold">0</div>
+          </div>
+          <div class="mt-3"><button id="qsBillsBtn" class="text-sm text-emerald-700 hover:underline">View Bills</button></div>
+        </div>
+        <!-- Savings Overview -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-soft hover:shadow transition">
+          <div class="text-slate-500 text-sm">Savings Overview</div>
+          <div class="flex items-center justify-between mt-1">
+            <div>
+              <div id="qsSavingsCur" class="text-2xl font-semibold">-</div>
+              <div id="qsSavingsTgt" class="text-slate-500 text-xs">of -</div>
+            </div>
+            
+          </div>
+          <div class="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div id="qsSavingsBar" class="h-2 bg-[color:var(--brand)]" style="width:0%"></div>
+          </div>
+          <div class="mt-3"><button id="qsSavingsBtn" class="text-sm text-emerald-700 hover:underline">See Details</button></div>
         </div>
       </section>
+      <!-- Budget Summary -->
+      <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-soft">
+        <div class="flex items-center justify-between gap-6 flex-wrap">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div>
+              <div class="text-slate-500 text-sm">Total Monthly Budget</div>
+              <div id="totalBudget" class="text-2xl font-semibold">-</div>
+            </div>
+            <div>
+              <div class="text-slate-500 text-sm">Total Expenses</div>
+              <div id="totalExpenses" class="text-2xl font-semibold">-</div>
+            </div>
+            <div>
+              <div class="text-slate-500 text-sm">Remaining Balance</div>
+              <div id="remainingBudget" class="text-2xl font-semibold">-</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-5">
+            <!-- Circular progress -->
+            <div class="relative w-28 h-28">
+              <svg id="budgetDonut" viewBox="0 0 120 120" class="w-28 h-28">
+                <circle cx="60" cy="60" r="54" stroke="#e5e7eb" stroke-width="12" fill="none"></circle>
+                <circle id="budgetDonutProgress" cx="60" cy="60" r="54" stroke="#00A86B" stroke-width="12" fill="none" stroke-linecap="round" transform="rotate(-90 60 60)" stroke-dasharray="339.29" stroke-dashoffset="339.29"></circle>
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center">
+                  <div id="donutLabel" class="text-sm font-semibold">0%</div>
+                  <div id="donutAlert" class="text-[10px] mt-0.5 text-slate-500"></div>
+                </div>
+              </div>
+            </div>
+            <button id="editBudgetBtn" class="shrink-0 inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm hover:bg-slate-50">
+              Edit Budget
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Over budget banner -->
+      <div id="budgetWarning" class="hidden mt-3 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg px-3 py-2 text-sm">
+        Warning: You are over your monthly budget. Consider reviewing expenses or adjusting your budget.
+      </div>
 
       <!-- Charts -->
-      <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 p-5">
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
-          <div class="mb-2 font-semibold">Spending by Category</div>
-          <canvas id="pieChart" height="200"></canvas>
-        </div>
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
-          <div class="mb-2 font-semibold">Monthly Spending</div>
-          <canvas id="barChart" height="200"></canvas>
-        </div>
-      </section>
-
-      <!-- Quick Actions -->
-      <section class="px-5 pb-3">
-        <div class="flex gap-3">
-          <button class="px-4 py-2 bg-emerald-600 text-white rounded" id="quickAddExpense">+ Add Expense</button>
-          <button class="px-4 py-2 bg-emerald-600 text-white rounded" id="quickAddBill">+ Add Bill</button>
+      <section class="mt-6">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-soft">
+          <div class="mb-3 font-semibold">Spending Chart</div>
+          <div class="w-full" style="height:220px;">
+            <canvas id="spendChart" style="width:100%; height:100%;"></canvas>
+          </div>
+          <div id="spendLegend" class="mt-3 flex flex-wrap gap-3 text-xs text-slate-600"></div>
         </div>
       </section>
 
-      <!-- Recent Transactions -->
-      <section class="p-5">
-        <div class="p-4 rounded-xl bg-white border border-slate-200">
+      <!-- Recent Transactions & Category Cards -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-soft lg:col-span-2">
           <div class="font-semibold mb-2">Recent Transactions</div>
-          <div id="emptyState" class="hidden p-3 border border-dashed rounded text-slate-500">You havent added any expenses yet. Click + Add Expense to get started!</div>
-          <div class="overflow-x-auto">
-            <table id="txTable" class="min-w-full">
+          <div id="emptyState" class="hidden p-3 border border-dashed rounded text-slate-500">No transactions yet. Use the + button to add one.</div>
+          <div class="overflow-x-auto max-h-72 overflow-y-auto">
+            <table id="txTable" class="min-w-full text-sm">
               <thead class="text-left text-slate-500">
                 <tr><th class="py-2">Date</th><th class="py-2">Category</th><th class="py-2">Amount</th><th class="py-2">Description</th><th class="py-2">Actions</th></tr>
               </thead>
@@ -92,181 +254,893 @@
             </table>
           </div>
         </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-soft">
+          <div class="font-semibold mb-3">Category Breakdown</div>
+          <div id="catCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3"></div>
+        </div>
       </section>
     </main>
   </div>
 
-  <!-- Add Expense Modal -->
-  <div id="expenseModal" class="fixed inset-0 hidden items-center justify-center bg-black/50">
-    <div class="bg-white rounded-xl w-full max-w-md p-5">
+  <!-- Floating Action Button -->
+  <button id="fab" class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[color:var(--brand)] text-white text-2xl shadow-soft hover:opacity-90">+</button>
+
+  <!-- Add Transaction Modal -->
+  <div id="txModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 z-40">
+    <div class="bg-white rounded-2xl w-full max-w-md p-5 shadow-soft">
       <div class="flex justify-between items-center mb-3">
-        <div class="font-semibold">Add Expense</div>
-        <button class="text-slate-500" data-close-expense>&times;</button>
+        <div class="font-semibold">Add Transaction</div>
+        <button class="text-slate-500" data-close-tx>&times;</button>
       </div>
-      <form id="expenseForm" class="space-y-3">
-        <div>
-          <label class="text-sm text-slate-600">Date</label>
-          <input type="date" id="expDate" class="w-full border rounded px-3 py-2" required />
+      <form id="txForm" class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm text-slate-600">Date</label>
+            <input type="date" id="txDate" class="w-full border rounded px-3 py-2" required />
+          </div>
+          <div>
+            <label class="text-sm text-slate-600">Type</label>
+            <select id="txType" class="w-full border rounded px-3 py-2">
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+            </select>
+          </div>
         </div>
         <div>
           <label class="text-sm text-slate-600">Category</label>
-          <select id="expCategory" class="w-full border rounded px-3 py-2" required></select>
+          <select id="txCategory" class="w-full border rounded px-3 py-2" required></select>
         </div>
         <div>
           <label class="text-sm text-slate-600">Amount</label>
-          <input type="number" step="0.01" id="expAmount" class="w-full border rounded px-3 py-2" required />
+          <input type="number" step="0.01" id="txAmount" class="w-full border rounded px-3 py-2" required />
         </div>
         <div>
           <label class="text-sm text-slate-600">Description</label>
-          <input type="text" id="expDesc" class="w-full border rounded px-3 py-2" />
+          <input type="text" id="txDesc" class="w-full border rounded px-3 py-2" />
         </div>
         <div class="flex justify-end gap-2">
-          <button type="button" class="px-4 py-2 rounded border" data-close-expense>Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded bg-emerald-600 text-white">Save</button>
+          <button type="button" class="px-4 py-2 rounded border" data-close-tx>Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded bg-[color:var(--brand)] text-white">Save</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Add Bill Modal -->
-  <div id="billModal" class="fixed inset-0 hidden items-center justify-center bg-black/50">
-    <div class="bg-white rounded-xl w-full max-w-md p-5">
+  <!-- Savings Modal -->
+  <div id="savingsModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 z-40">
+    <div class="bg-white rounded-2xl w-full max-w-3xl p-5 shadow-soft">
       <div class="flex justify-between items-center mb-3">
-        <div class="font-semibold">Add Bill</div>
-        <button class="text-slate-500" data-close-bill>&times;</button>
+        <div class="font-semibold">Savings Overview</div>
+        <button class="text-slate-500" data-close-savings>&times;</button>
       </div>
-      <form id="billForm" class="space-y-3">
-        <div>
-          <label class="text-sm text-slate-600">Name</label>
-          <input type="text" id="billName" class="w-full border rounded px-3 py-2" required />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="min-h-[320px]">
+          <div class="text-sm text-slate-500 mb-1">Active Goals</div>
+          <div id="goalsActive" class="space-y-2 max-h-40 overflow-y-auto border border-slate-100 rounded-lg p-2"></div>
+          <div class="text-sm text-slate-500 mt-4 mb-1">Completed Goals</div>
+          <div id="goalsCompleted" class="space-y-2 max-h-40 overflow-y-auto border border-slate-100 rounded-lg p-2"></div>
         </div>
+        <div class="space-y-4">
+          <div class="border rounded-xl p-3">
+            <div class="flex items-center justify-between">
+              <div class="font-medium">Summary</div>
+            </div>
+            <div class="mt-2 text-sm text-slate-600">
+              <span id="savAggCur">0.00</span> of <span id="savAggTgt">0.00</span>
+              (<span id="savAggPct">0</span>%)
+            </div>
+            <div class="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div id="savAggBar" class="h-2 bg-[color:var(--brand)]" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="border rounded-xl p-3">
+            <div class="font-medium mb-2">Create Goal</div>
+            <form id="createGoalForm" class="space-y-2">
+              <input type="text" id="goalName" placeholder="Goal name" class="w-full border rounded px-3 py-2" required />
+              <input type="number" id="goalTarget" step="0.01" min="0.01" placeholder="Target amount" class="w-full border rounded px-3 py-2" required />
+              <div class="grid grid-cols-2 gap-2">
+                <input type="date" id="goalStart" class="w-full border rounded px-3 py-2" />
+                <input type="date" id="goalTargetDate" class="w-full border rounded px-3 py-2" />
+              </div>
+              <button type="submit" class="w-full rounded bg-[color:var(--brand)] text-white py-2">Add Goal</button>
+            </form>
+          </div>
+          <div class="border rounded-xl p-3">
+            <div class="font-medium mb-2">Contribute</div>
+            <form id="contribForm" class="space-y-2">
+              <select id="contribGoal" class="w-full border rounded px-3 py-2"></select>
+              <input type="number" id="contribAmount" step="0.01" min="0.01" placeholder="Amount" class="w-full border rounded px-3 py-2" required />
+              <button type="submit" class="w-full rounded bg-[color:var(--brand)] text-white py-2">Add Contribution</button>
+            </form>
+            <div id="noActiveMsg" class="hidden text-xs text-slate-500 mt-2">No active goals available to contribute.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Budget Modal -->
+  <div id="budgetModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 z-40">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-soft">
+      <div class="flex justify-between items-center mb-3">
+        <div class="font-semibold">Edit Monthly Budget</div>
+        <button class="text-slate-500" data-close-budget>&times;</button>
+      </div>
+      <form id="budgetForm" class="space-y-3">
         <div>
           <label class="text-sm text-slate-600">Amount</label>
-          <input type="number" step="0.01" id="billAmount" class="w-full border rounded px-3 py-2" required />
-        </div>
-        <div>
-          <label class="text-sm text-slate-600">Due Date</label>
-          <input type="date" id="billDue" class="w-full border rounded px-3 py-2" required />
+          <input type="number" step="0.01" min="0.01" id="budgetAmount" class="w-full border rounded px-3 py-2" required />
         </div>
         <div class="flex justify-end gap-2">
-          <button type="button" class="px-4 py-2 rounded border" data-close-bill>Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded bg-emerald-600 text-white">Save</button>
+          <button type="button" class="px-4 py-2 rounded border" data-close-budget>Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded bg-[color:var(--brand)] text-white">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profileModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 z-40">
+    <div class="bg-white rounded-2xl w-full max-w-lg p-5 shadow-soft">
+      <div class="flex justify-between items-center mb-3">
+        <div class="font-semibold">Personal Information</div>
+        <button class="text-slate-500" data-close-profile>&times;</button>
+      </div>
+      <form id="profileForm" class="space-y-4" enctype="multipart/form-data">
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <div id="avatarCircle" class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl select-none">A</div>
+            <img id="avatarImg" class="w-16 h-16 rounded-full object-cover hidden" alt="avatar" />
+            <button type="button" id="changeAvatarBtn" class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white border border-slate-200 shadow flex items-center justify-center text-base" title="Edit">
+              ✏︎
+            </button>
+            <!-- Avatar action menu -->
+            <div id="avatarMenu" class="hidden absolute left-1/2 -translate-x-1/2 mt-2 top-full bg-white border border-slate-200 rounded-md shadow z-50 text-sm">
+              <button id="avatarChange" type="button" class="block w-full text-left px-3 py-2 hover:bg-slate-50">Change photo</button>
+              <button id="avatarRemove" type="button" class="block w-full text-left px-3 py-2 hover:bg-slate-50 text-rose-600">Remove photo</button>
+            </div>
+          </div>
+          <input type="file" id="avatarFile" name="avatar" accept="image/*" class="hidden" />
+          <input type="hidden" id="removeAvatar" name="removeAvatar" value="0" />
+        </div>
+        <div>
+          <label class="text-sm text-slate-600">Full Name</label>
+          <input type="text" id="fullName" name="name" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div>
+          <label class="text-sm text-slate-600">Email</label>
+          <input type="email" id="email" name="email" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" class="px-4 py-2 rounded border" data-close-profile>Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded bg-[color:var(--brand)] text-white">Save</button>
         </div>
       </form>
     </div>
   </div>
 
   <script>
-    // Simple modal helpers
+    const qs = (s) => document.querySelector(s);
     const show = (el) => el.classList.remove('hidden');
     const hide = (el) => el.classList.add('hidden');
+    // Keep a reference to the spending chart to avoid double-instantiation errors
+    let spendChartInstance = null;
+  let lastDashboardData = null;
 
-    const expenseModal = document.getElementById('expenseModal');
-    const billModal = document.getElementById('billModal');
-
-    // Button wiring
-    document.getElementById('addExpense').addEventListener('click', () => show(expenseModal));
-    document.getElementById('quickAddExpense').addEventListener('click', () => show(expenseModal));
-    document.getElementById('addBill').addEventListener('click', () => show(billModal));
-    document.getElementById('quickAddBill').addEventListener('click', () => show(billModal));
-
-    document.querySelectorAll('[data-close-expense]').forEach(btn => btn.addEventListener('click', () => hide(expenseModal)));
-    document.querySelectorAll('[data-close-bill]').forEach(btn => btn.addEventListener('click', () => hide(billModal)));
-
-    // Theme toggle (very basic)
-    document.getElementById('themeToggle').addEventListener('click', () => {
-      document.body.classList.toggle('bg-slate-900');
-      document.body.classList.toggle('text-slate-100');
+  // Sidebar toggle
+  const sidebar = qs('#sidebar');
+  const backdrop = qs('#backdrop');
+    const hamburger = qs('#hamburgerBtn');
+    const closeSide = () => { sidebar.classList.add('-translate-x-full'); backdrop.classList.add('hidden'); hamburger.classList.remove('open'); hamburger.setAttribute('aria-expanded','false'); };
+    const openSide = () => { sidebar.classList.remove('-translate-x-full'); backdrop.classList.remove('hidden'); hamburger.classList.add('open'); hamburger.setAttribute('aria-expanded','true'); };
+    hamburger.addEventListener('click', () => {
+      if (sidebar.classList.contains('-translate-x-full')) openSide(); else closeSide();
     });
+    backdrop.addEventListener('click', closeSide);
 
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      try { await fetch('logout.php'); } catch(e) {}
+    // Populate welcome name in the top bar
+    async function populateWelcome(){
+      try{
+        const r = await fetch('get_profile.php', { cache: 'no-store', credentials:'same-origin' });
+        const d = await r.json();
+        const fallback = 'User';
+        const nameRaw = d && (d.name || d.email) ? (d.name || d.email) : fallback;
+        const firstName = (nameRaw || '').trim().split(' ')[0] || nameRaw || fallback;
+        const el = document.getElementById('welcomeName');
+        if (el) el.textContent = firstName;
+        // Set nav avatar
+        const navImg = document.getElementById('navAvatarImg');
+        const navFallback = document.getElementById('navAvatarFallback');
+        if (d && d.avatarUrl){
+          navImg.src = d.avatarUrl + '?t=' + Date.now();
+          navImg.classList.remove('hidden');
+          navFallback?.classList.add('hidden');
+        } else {
+          navImg.classList.add('hidden');
+          navFallback?.classList.remove('hidden');
+        }
+      }catch(e){ /* ignore */ }
+    }
+
+    // Highlight active link in sidebar (only nav links, not the header logo)
+    (function highlightActive(){
+      const path = (location.pathname.split('/').pop() || 'dashboard.html').toLowerCase();
+      document.querySelectorAll('#sidebar nav a').forEach(a => {
+        const raw = a.getAttribute('href');
+        if (!raw) return;
+        const href = raw.split('#')[0].split('?')[0].toLowerCase();
+        if (href === path) {
+          a.classList.add('bg-emerald-50','text-emerald-700','border-emerald-200','border');
+        } else {
+          a.classList.remove('bg-emerald-50','text-emerald-700','border-emerald-200','border');
+        }
+      });
+    })();
+
+  // Notifications dropdown
+  const notifyBtn = qs('#notifyBtn');
+  const notifyPanel = qs('#notifyPanel');
+  notifyBtn.addEventListener('click', (e) => { e.stopPropagation(); notifyPanel.classList.toggle('hidden'); });
+  document.addEventListener('click', () => { if (!notifyPanel.classList.contains('hidden')) notifyPanel.classList.add('hidden'); });
+
+  // Logout
+    qs('#logoutBtn')?.addEventListener('click', async () => {
+      try { await fetch('logout.php', { credentials:'same-origin' }); } catch(_){}
+      window.location.href = 'login.html';
+    });
+    qs('#sidebarLogout')?.addEventListener('click', async () => {
+      try { await fetch('logout.php', { credentials:'same-origin' }); } catch(_){}
       window.location.href = 'login.html';
     });
 
-    // Load categories for expense select
-    async function loadCategories(){
-      try{
-        const res = await fetch('list_categories.php');
-        const data = await res.json();
-        const sel = document.getElementById('expCategory');
-        sel.innerHTML = '';
-        (data.categories || []).forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id; opt.textContent = c.name;
-          sel.appendChild(opt);
-        });
-      }catch(e){ console.error(e); }
-    }
+    // FAB / Modal
+    const txModal = qs('#txModal');
+  qs('#fab').addEventListener('click', () => show(txModal));
+  qs('#quickAdd')?.addEventListener('click', () => show(txModal));
+    document.querySelectorAll('[data-close-tx]').forEach(b => b.addEventListener('click', () => hide(txModal)));
 
-    // Submit expense
-    document.getElementById('expenseForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const payload = {
-        date: document.getElementById('expDate').value,
-        categoryId: parseInt(document.getElementById('expCategory').value, 10),
-        amount: parseFloat(document.getElementById('expAmount').value),
-        description: document.getElementById('expDesc').value || null
-      };
-      try{
-        const res = await fetch('add_expense.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-        const data = await res.json();
-        if (data.success){ hide(expenseModal); await loadDashboard(); }
-        else { alert(data.message || 'Failed to add expense'); }
-      }catch(e){ alert('Network error'); }
+    // Profile dropdown
+    const profileBtn = qs('#profileBtn');
+    const profileMenu = qs('#profileMenu');
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      profileMenu.classList.toggle('hidden');
+    });
+    document.addEventListener('click', (e) => {
+      if (!profileMenu.classList.contains('hidden')) profileMenu.classList.add('hidden');
+    });
+    profileMenu.addEventListener('click', (e) => {
+      const action = e.target.getAttribute('data-menu');
+      if (!action) return;
+      profileMenu.classList.add('hidden');
+      if (action === 'profile') openProfile();
+      else if (action === 'settings') {
+        // Placeholder: navigate or open settings when available
+  FinUI.toast('Settings coming soon');
+      } else if (action === 'logout') {
+        (async () => { try { await fetch('logout.php'); } catch(_){} window.location.href = 'login.html'; })();
+      }
     });
 
-    // Submit bill
-    document.getElementById('billForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const payload = {
-        name: document.getElementById('billName').value,
-        amount: parseFloat(document.getElementById('billAmount').value),
-        dueDate: document.getElementById('billDue').value
-      };
-      try{
-        const res = await fetch('add_bill.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-        const data = await res.json();
-        if (data.success){ hide(billModal); await loadDashboard(); }
-        else { alert(data.message || 'Failed to add bill'); }
-      }catch(e){ alert('Network error'); }
+    // Profile Modal handlers
+    const profileModal = qs('#profileModal');
+    document.querySelectorAll('[data-close-profile]').forEach(b => b.addEventListener('click', () => hide(profileModal)));
+    // Avatar menu interactions
+    const avatarBtn = qs('#changeAvatarBtn');
+    const avatarMenu = qs('#avatarMenu');
+    avatarBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      avatarMenu.classList.toggle('hidden');
+    });
+    document.addEventListener('click', (e) => {
+      if (!avatarMenu.classList.contains('hidden')) avatarMenu.classList.add('hidden');
+    });
+    // Change photo
+    qs('#avatarChange').addEventListener('click', () => {
+      qs('#removeAvatar').value = '0';
+      qs('#avatarFile').click();
+      avatarMenu.classList.add('hidden');
+    });
+    // Remove photo
+    qs('#avatarRemove').addEventListener('click', () => {
+      qs('#removeAvatar').value = '1';
+      const img = qs('#avatarImg'); const circle = qs('#avatarCircle');
+      img.classList.add('hidden'); circle.classList.remove('hidden');
+      avatarMenu.classList.add('hidden');
+    });
+    qs('#avatarFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      const img = qs('#avatarImg'); const circle = qs('#avatarCircle');
+      img.src = url; img.classList.remove('hidden'); circle.classList.add('hidden');
     });
 
-    // Dashboard data loader
-    async function loadDashboard(){
+    async function openProfile(){
       try{
-        const res = await fetch('dashboard_data.php');
-        const data = await res.json();
-        // Cards
-        document.getElementById('totalBudget').textContent = data.totalBudgetFormatted;
-        document.getElementById('totalExpenses').textContent = data.totalExpensesFormatted;
-        document.getElementById('remainingBudget').textContent = data.remainingBudgetFormatted;
-        document.getElementById('upcomingBill').textContent = data.upcomingBill || '-';
-
-        // Table
-        const tbody = document.querySelector('#txTable tbody');
-        tbody.innerHTML = '';
-        if (!data.recentTransactions || data.recentTransactions.length === 0){
-          document.getElementById('emptyState').classList.remove('hidden');
-        } else {
-          document.getElementById('emptyState').classList.add('hidden');
-          data.recentTransactions.forEach(t => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="py-2">${t.date}</td><td class="py-2">${t.category}</td><td class="py-2">${t.amountFormatted}</td><td class="py-2">${t.description||''}</td><td class="py-2"><button class='text-emerald-700'>Edit</button> / <button class='text-rose-700'>Delete</button></td>`;
-            tbody.appendChild(tr);
-          });
+  const r = await fetch('get_profile.php', { cache: 'no-store', credentials:'same-origin' });
+  if (!r.ok) throw new Error('Failed to load profile');
+  const d = await r.json();
+        if (!d || d.success === false){
+          alert(d?.message || 'Unable to load profile');
+          return;
         }
-
-        // Charts
-        new Chart(document.getElementById('pieChart'), { type:'pie', data:{ labels:data.categoryBreakdown.labels, datasets:[{ data:data.categoryBreakdown.values, backgroundColor:['#34d399','#60a5fa','#fb7185','#a78bfa','#fbbf24','#22d3ee'] }] } });
-        new Chart(document.getElementById('barChart'), { type:'bar', data:{ labels:data.monthly.labels, datasets:[{ label:'Spending', data:data.monthly.values, backgroundColor:'#10b981' }] }, options:{ scales:{ y:{ beginAtZero:true } } } });
-      }catch(e){ console.error(e); }
+        const name = d.name || '';
+        qs('#fullName').value = name;
+        qs('#email').value = d.email || '';
+        const initial = (name?.trim()?.charAt(0) || (d.email||'').charAt(0) || '?').toUpperCase();
+        const circle = qs('#avatarCircle'); const img = qs('#avatarImg');
+        circle.textContent = initial;
+        if (d.avatarUrl){ img.src = d.avatarUrl + '?t=' + Date.now(); img.classList.remove('hidden'); circle.classList.add('hidden'); }
+        else { img.classList.add('hidden'); circle.classList.remove('hidden'); }
+        show(profileModal);
+      }catch(e){ console.error(e); alert('Failed to load profile'); }
     }
 
-    // Init
-    loadCategories();
-    loadDashboard();
+    qs('#profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(qs('#profileForm'));
+      try{
+        const r = await fetch('update_profile.php', { method: 'POST', body: fd, credentials:'same-origin' });
+        let d;
+        try { d = await r.json(); } catch { d = { success:false, message:'Invalid server response' }; }
+        if (d.success){ hide(profileModal); await populateWelcome(); }
+        else { alert(d.message || 'Failed to update profile'); }
+      }catch(_e){ alert('Network error'); }
+    });
+
+    // Load categories
+    async function loadCategories(){
+      const res = await fetch('list_categories.php', { credentials:'same-origin', cache:'no-store' });
+      if (!res.ok) throw new Error('Failed to load categories');
+  const data = await res.json();
+  lastDashboardData = data;
+      const sel = qs('#txCategory'); sel.innerHTML = '';
+      (data.categories||[]).forEach(c=>{ const o=document.createElement('option'); o.value=c.id; o.textContent=c.name; sel.appendChild(o); });
+    }
+
+    // Submit transaction (expense/income)
+    qs('#txForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const type = qs('#txType').value;
+      const payload = {
+        date: qs('#txDate').value,
+        categoryId: parseInt(qs('#txCategory').value,10),
+        amount: parseFloat(qs('#txAmount').value),
+        description: qs('#txDesc').value || null
+      };
+      const url = type === 'income' ? 'add_income.php' : 'add_expense.php';
+      try{
+        const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload), credentials:'same-origin' });
+        let data;
+        try { data = await res.json(); } catch {
+          const t = await res.text().catch(()=> '');
+          throw new Error(t || 'Invalid server response');
+        }
+        if (res.ok && data.success){ hide(txModal); await loadDashboard(); }
+        else { alert(data.message || 'Failed to save'); }
+      }catch(err){ console.error(err); alert('Network error'); }
+    });
+
+    // Build category cards
+    function renderCategoryCards(labels, values){
+      const wrap = qs('#catCards'); wrap.innerHTML = '';
+      const total = values.reduce((a,b)=>a+b,0) || 1;
+      labels.forEach((name, i) => {
+        const amount = values[i] || 0;
+        const pct = Math.round((amount/total)*100);
+        const card = document.createElement('div');
+        card.className = 'border border-slate-200 rounded-xl p-3';
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="font-medium">${name}</div>
+            <div class="text-slate-500 text-sm">${pct}%</div>
+          </div>
+          <div class="mt-1 text-sm font-semibold">${amount.toFixed(2)}</div>
+          <div class="mt-2 h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-2 bg-[color:var(--brand)]" style="width:${pct}%"></div>
+          </div>`;
+        wrap.appendChild(card);
+      });
+    }
+
+    // Dashboard data
+    async function loadDashboard(){
+      const res = await fetch('dashboard_data.php', { credentials:'same-origin', cache:'no-store', headers:{ 'Accept':'application/json' } });
+      if (!res.ok) {
+        const txt = await res.text().catch(()=> '');
+        throw new Error(txt || 'Failed to load dashboard');
+      }
+      const data = await res.json();
+  // Summary cards
+      qs('#totalBudget').textContent = data.totalBudgetFormatted;
+      qs('#totalExpenses').textContent = data.totalExpensesFormatted;
+      qs('#remainingBudget').textContent = data.remainingBudgetFormatted;
+  // Budget donut progress and alerts
+  const pctUsage = data.totalBudget > 0 ? Math.round((data.totalExpenses/data.totalBudget)*100) : 0;
+  const circumference = 2 * Math.PI * 54; // matches stroke-dasharray
+  const ring = document.getElementById('budgetDonutProgress');
+  const cappedPct = Math.max(0, Math.min(100, pctUsage));
+  const dashOffset = circumference * (1 - cappedPct/100);
+  ring.setAttribute('stroke-dasharray', circumference.toFixed(2));
+  ring.setAttribute('stroke-dashoffset', dashOffset.toFixed(2));
+  // Color and alert based on usage
+  let color = '#00A86B';
+  let alertText = '';
+  if (pctUsage >= 100) { color = '#ef4444'; alertText = 'Over budget'; }
+  else if (pctUsage >= 90) { color = '#ef4444'; alertText = 'Critical'; }
+  else if (pctUsage >= 75) { color = '#f59e0b'; alertText = 'Near limit'; }
+  ring.setAttribute('stroke', color);
+  const donutLabelEl = document.getElementById('donutLabel');
+  if (pctUsage >= 100) {
+    donutLabelEl.textContent = 'Over budget';
+  } else {
+    donutLabelEl.textContent = (pctUsage < 0 ? 0 : pctUsage) + '%';
+  }
+  const alertEl = document.getElementById('donutAlert');
+  if (alertEl) alertEl.textContent = (pctUsage >= 100) ? '' : alertText;
+
+  // Show/Hide warning banner
+  const warn = document.getElementById('budgetWarning');
+  if (pctUsage >= 100) warn.classList.remove('hidden'); else warn.classList.add('hidden');
+
+      // Badge remaining today (simple prorated example: remaining / days left)
+      try {
+        const today = new Date();
+        const daysInMonth = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate();
+        const day = today.getDate();
+        const daysLeft = Math.max(1, daysInMonth - day + 1);
+  const daily = data.remainingBudget > 0 ? (data.remainingBudget / daysLeft) : 0;
+  const val = daily >= 1000 ? (Math.round(daily/100)/10)+'k' : Math.round(daily).toString();
+  const badge = qs('#badgeRemaining'); if (badge) badge.textContent = val;
+        // Build notifications from data + prefs
+        await buildNotifications(data);
+      } catch(_e){}
+
+      // Recent transactions
+      const tbody = document.querySelector('#txTable tbody');
+      tbody.innerHTML = '';
+      const txs = data.recentTransactions || [];
+      if (txs.length === 0) qs('#emptyState').classList.remove('hidden'); else qs('#emptyState').classList.add('hidden');
+      txs.forEach(t => {
+        const tr = document.createElement('tr');
+        const cls = (t.type === 'income') ? 'text-emerald-600' : 'text-rose-600';
+        tr.innerHTML = `<td class=\"py-2\">${t.date}</td><td class=\"py-2\">${t.category}</td><td class=\"py-2 ${cls}\">${t.amountFormatted}</td><td class=\"py-2\">${t.description||''}</td><td class=\"py-2\"><button class=\"px-2 py-1 text-xs rounded border border-slate-200 hover:bg-slate-50 text-rose-600\" data-del-tx=\"${t.id}\">Delete</button></td>`;
+        tbody.appendChild(tr);
+      });
+      // Bind delete buttons
+      document.querySelectorAll('[data-del-tx]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = parseInt(e.currentTarget.getAttribute('data-del-tx'),10);
+          if (!id) return;
+          const okDelTx = await FinUI.confirm({ title:'Delete transaction', message:'Are you sure you want to delete this transaction?', danger:true, confirmText:'Delete' }); if (!okDelTx) return;
+          try{
+            const r = await fetch('delete_transaction.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id }), credentials:'same-origin' });
+            const d = await r.json();
+            if (r.ok && d.success) { await loadDashboard(); }
+            else { FinUI.toast(d.message || 'Failed to delete transaction','error'); }
+          }catch(_e){ FinUI.toast('Network error','error'); }
+        });
+      });
+
+      // Spending chart (category-based horizontal bar with custom legend)
+      const canvas = document.getElementById('spendChart');
+      const labels = data.categoryBreakdown?.labels || [];
+      const values = data.categoryBreakdown?.values || [];
+      const CAT_COLORS = {
+        'Food': '#3b82f6',      // blue
+        'Bills': '#f59e0b',     // amber
+        'Shopping': '#10b981',  // emerald
+        'Transport': '#ef4444', // red
+        'Entertainment': '#8b5cf6', // violet
+        'Health': '#06b6d4',    // cyan
+        'Groceries': '#22c55e',
+        'Rent': '#f97316',
+        'Utilities': '#eab308'
+      };
+      const palette = ['#3b82f6','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#22c55e','#f97316','#eab308','#14b8a6','#6366f1'];
+      const bgColors = labels.map((name, i) => CAT_COLORS[name] || palette[i % palette.length]);
+      // Destroy previous chart instance if exists to avoid reuse errors
+      try { spendChartInstance?.destroy(); } catch(_) {}
+      const isDark = document.documentElement.classList.contains('dark');
+      const gridColor = isDark ? 'rgba(148,163,184,0.25)' : 'rgba(148,163,184,0.2)';
+      const tickColor = isDark ? '#cbd5e1' : '#334155';
+      const legendColor = isDark ? '#e2e8f0' : '#334155';
+      const tooltipBg = isDark ? '#111827' : '#ffffff';
+      const tooltipFg = isDark ? '#e5e7eb' : '#0f172a';
+      const tooltipBorder = isDark ? '#334155' : '#e2e8f0';
+      spendChartInstance = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Spending',
+            data: values,
+            backgroundColor: bgColors,
+            borderRadius: 4,
+            maxBarThickness: 24,
+          }]
+        },
+        options: {
+          indexAxis: 'y', // horizontal bars
+          responsive: true,
+          maintainAspectRatio: false, // fill the fixed-height container
+          layout: { padding: { top: 10, right: 14, bottom: 24, left: 14 } },
+          plugins: {
+            legend: { display: false, labels:{ color: legendColor } }, // we render a custom legend below
+            tooltip: { enabled: true, backgroundColor: tooltipBg, titleColor: tooltipFg, bodyColor: tooltipFg, borderColor: tooltipBorder, borderWidth:1 }
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              grid: { color: gridColor },
+              ticks: { color: tickColor }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: tickColor }
+            }
+          }
+        }
+      });
+
+      // Build custom legend at bottom
+      const legendWrap = document.getElementById('spendLegend');
+      legendWrap.innerHTML = '';
+      labels.forEach((name, i) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center gap-2';
+        const swatch = document.createElement('span');
+        swatch.style.cssText = `display:inline-block;width:12px;height:12px;border-radius:3px;background:${bgColors[i]}`;
+        const text = document.createElement('span');
+        text.textContent = name;
+        item.appendChild(swatch);
+        item.appendChild(text);
+        legendWrap.appendChild(item);
+      });
+
+  // Category cards
+  renderCategoryCards(data.categoryBreakdown.labels, data.categoryBreakdown.values);
+
+      // Quick stats bindings
+    qs('#qsTotalExpenses').textContent = data.totalExpensesFormatted;
+    qs('#qsRemaining').textContent = data.remainingBudgetFormatted;
+    const bPct = Math.max(0, Math.min(100, pctUsage));
+    qs('#qsBudgetBar').style.width = bPct + '%';
+      qs('#qsBillsDue').textContent = String(data.billsDue || 0);
+    qs('#qsSavingsCur').textContent = data.savings.currentFormatted;
+    qs('#qsSavingsTgt').textContent = 'of ' + data.savings.targetFormatted;
+    qs('#qsSavingsBar').style.width = (data.savings.percent||0) + '%';
+    }
+
+    // Ensure onboarding complete (allow bypass via skipOnboarding=1)
+    (async function ensureOnboarded(){
+      // Respect skipOnboarding=1 to avoid redirect when navigating back from Settings
+      const params = new URLSearchParams(window.location.search);
+      const skip = params.get('skipOnboarding') === '1';
+      if (!skip) {
+        try{
+          const r = await fetch('needs_onboarding.php', { credentials:'same-origin', cache:'no-store' });
+          if (!r.ok) throw new Error('onboarding check failed');
+          const d = await r.json();
+          if (d && d.success && d.needs){ window.location.href = 'onboarding.html'; return; }
+        }catch(_e){}
+      }
+  await populateWelcome();
+  await loadCategories();
+      await loadDashboard();
+      // After dashboard loads, also check bill reminders due soon
+      try { await checkBillReminders(); } catch(_){}
+    })();
+
+    // Savings modal wiring
+    const savingsModal = qs('#savingsModal');
+    document.querySelectorAll('[data-close-savings]').forEach(b => b.addEventListener('click', () => hide(savingsModal)));
+    qs('#qsSavingsBtn').addEventListener('click', async () => { await refreshSavingsUI(); show(savingsModal); });
+    // Set date minimums when opening savings modal
+    qs('#qsSavingsBtn').addEventListener('click', () => {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth()+1).padStart(2,'0');
+      const dd = String(today.getDate()).padStart(2,'0');
+      const todayStr = `${yyyy}-${mm}-${dd}`;
+      const tomorrow = new Date(today.getTime()+24*60*60*1000);
+      const y2 = tomorrow.getFullYear();
+      const m2 = String(tomorrow.getMonth()+1).padStart(2,'0');
+      const d2 = String(tomorrow.getDate()).padStart(2,'0');
+      const tomorrowStr = `${y2}-${m2}-${d2}`;
+      const startEl = qs('#goalStart');
+      const endEl = qs('#goalTargetDate');
+      if (startEl) startEl.min = todayStr;
+      if (endEl) endEl.min = tomorrowStr;
+    });
+
+    async function refreshSavingsUI(){
+      try{
+        const r = await fetch('list_savings_goals.php', { credentials:'same-origin', cache:'no-store' });
+        if (!r.ok) throw new Error('Failed to load');
+        const d = await r.json();
+        const activeWrap = qs('#goalsActive');
+        const completedWrap = qs('#goalsCompleted');
+        activeWrap.innerHTML = '';
+        completedWrap.innerHTML = '';
+        const sel = qs('#contribGoal'); sel.innerHTML = '';
+        const goals = (d.goals||[]);
+        const active = goals.filter(g=>!g.completed);
+        const completed = goals.filter(g=>g.completed);
+
+        const makeRow = (g) => {
+          const row = document.createElement('div');
+          row.className = 'border border-slate-200 rounded-lg p-3';
+          row.innerHTML = `
+            <div class=\"flex items-center justify-between gap-3\">
+              <div class=\"min-w-0\">
+                <div class=\"font-medium truncate\">${g.name}</div>
+                <div class=\"text-xs text-slate-500\">${g.currentFormatted} of ${g.targetFormatted} • ${g.percent}%</div>
+              </div>
+              <div class=\"flex items-center gap-3\">
+                <div class=\"w-28 h-2 bg-slate-100 rounded-full overflow-hidden\"><div class=\"h-2 bg-[color:var(--brand)]\" style=\"width:${g.percent}%\"></div></div>
+                <button class=\"px-2 py-1 text-xs rounded border border-slate-200 hover:bg-slate-50 text-rose-600\" data-del-goal=\"${g.id}\">Delete</button>
+              </div>
+            </div>`;
+          return row;
+        };
+
+        active.forEach(g => {
+          const row = makeRow(g);
+          activeWrap.appendChild(row);
+            const opt = document.createElement('option');
+            opt.value = g.id; opt.textContent = `${g.name} (${g.currentFormatted}/${g.targetFormatted})`;
+            sel.appendChild(opt);
+        });
+
+        completed.forEach(g => { completedWrap.appendChild(makeRow(g)); });
+
+        if (active.length === 0) {
+          activeWrap.innerHTML = '<div class="text-xs text-slate-500">No active goals.</div>';
+          const placeholder = document.createElement('option');
+          placeholder.text = '-- No active goals --';
+          placeholder.value = '';
+          sel.appendChild(placeholder);
+          sel.disabled = true;
+          qs('#noActiveMsg').classList.remove('hidden');
+        } else {
+          sel.disabled = false;
+          qs('#noActiveMsg').classList.add('hidden');
+        }
+        // Bind delete buttons
+        document.querySelectorAll('#goalsActive [data-del-goal], #goalsCompleted [data-del-goal]').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const id = parseInt(e.currentTarget.getAttribute('data-del-goal'),10);
+            if (!id) return;
+            const okDelGoal = await FinUI.confirm({ title:'Delete goal', message:'This cannot be undone. Continue?', danger:true, confirmText:'Delete' }); if (!okDelGoal) return;
+            try{
+              const r = await fetch('delete_savings_goal.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id }), credentials:'same-origin' });
+              const d = await r.json();
+              if (r.ok && d.success) { await refreshSavingsUI(); await loadDashboard(); }
+              else { FinUI.toast(d.message || 'Failed to delete','error'); }
+            } catch(err){ FinUI.toast('Network error','error'); }
+          });
+        });
+
+        // Update top overview from aggregate (optional)
+        if (d.aggregate){
+          qs('#qsSavingsCur').textContent = d.aggregate.currentFormatted;
+          qs('#qsSavingsTgt').textContent = 'of ' + d.aggregate.targetFormatted;
+          qs('#qsSavingsBar').style.width = (d.aggregate.percent||0) + '%';
+          // Modal summary
+          qs('#savAggCur').textContent = d.aggregate.currentFormatted;
+          qs('#savAggTgt').textContent = d.aggregate.targetFormatted;
+          qs('#savAggPct').textContent = d.aggregate.percent || 0;
+          qs('#savAggBar').style.width = (d.aggregate.percent||0) + '%';
+        }
+      } catch(e){ console.error(e); }
+    }
+
+    qs('#createGoalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        name: qs('#goalName').value.trim(),
+        target: parseFloat(qs('#goalTarget').value),
+        startDate: qs('#goalStart').value || undefined,
+        targetDate: qs('#goalTargetDate').value || undefined
+      };
+      try{
+        const r = await fetch('add_savings_goal.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload), credentials:'same-origin' });
+        const d = await r.json();
+        if (r.ok && d.success){
+          // reset
+          qs('#goalName').value = '';
+          qs('#goalTarget').value = '';
+          qs('#goalStart').value = '';
+          qs('#goalTargetDate').value = '';
+          await refreshSavingsUI();
+          await loadDashboard();
+        } else { FinUI.toast(d.message || 'Failed to create goal','error'); }
+      }catch(err){ FinUI.toast('Network error','error'); }
+    });
+
+    qs('#contribForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = { goalId: parseInt(qs('#contribGoal').value,10), amount: parseFloat(qs('#contribAmount').value) };
+  if (!payload.goalId || !payload.amount || payload.amount<=0) { FinUI.toast('Pick a goal and enter a positive amount','warning'); return; }
+      try{
+        const r = await fetch('contribute_savings.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload), credentials:'same-origin' });
+        const d = await r.json();
+        if (r.ok && d.success){
+          qs('#contribAmount').value = '';
+          await refreshSavingsUI();
+          await loadDashboard();
+        } else { FinUI.toast(d.message || 'Failed to contribute','error'); }
+      }catch(err){ FinUI.toast('Network error','error'); }
+    });
+
+    // Edit Budget modal wiring
+    const budgetModal = qs('#budgetModal');
+    document.querySelectorAll('[data-close-budget]').forEach(b => b.addEventListener('click', () => hide(budgetModal)));
+    qs('#editBudgetBtn').addEventListener('click', () => {
+      // Prefill with current value on the page if available
+      const txt = qs('#totalBudget')?.textContent?.replace(/,/g,'');
+      const val = parseFloat(txt);
+      qs('#budgetAmount').value = isNaN(val) ? '' : val;
+      show(budgetModal);
+    });
+    // QS Adjust Budget button also opens modal
+    qs('#qsBudgetBtn')?.addEventListener('click', () => {
+      const txt = qs('#totalBudget')?.textContent?.replace(/,/g,'');
+      const val = parseFloat(txt);
+      qs('#budgetAmount').value = isNaN(val) ? '' : val;
+      show(budgetModal);
+    });
+    qs('#budgetForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const amount = parseFloat(qs('#budgetAmount').value);
+  if (!amount || amount <= 0) { FinUI.toast('Enter a valid amount','warning'); return; }
+      try{
+        const r = await fetch('update_budget.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ amount }), credentials:'same-origin' });
+        const d = await r.json();
+        if (r.ok && d.success){ hide(budgetModal); await loadDashboard(); }
+        else { FinUI.toast(d.message || 'Failed to update budget','error'); }
+      }catch(_e){ FinUI.toast('Network error','error'); }
+    });
+
+    // Navigate to Bills page from quick stat
+    document.getElementById('qsBillsBtn')?.addEventListener('click', () => {
+      window.location.href = 'bills.html';
+    });
+
+    // View Details for Total Expenses (This Month)
+    document.getElementById('qsExpensesBtn')?.addEventListener('click', () => {
+      const now = new Date();
+      const y = now.getFullYear(); const m = now.getMonth();
+      const from = new Date(y, m, 1).toISOString().slice(0,10);
+      const to = new Date(y, m+1, 0).toISOString().slice(0,10);
+      const params = new URLSearchParams({ from, to });
+      window.location.href = 'transactions.html?' + params.toString();
+    });
+
+    // --- Bill reminder helpers (shared with Bills page) ---
+    function dash_daysUntil(dateStr){
+      const d = new Date(dateStr+'T00:00:00');
+      const now = new Date(); const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const diffMs = d.getTime() - today.getTime();
+      return Math.round(diffMs / (24*60*60*1000));
+    }
+    function dash_reminderKey(userId, bill){ return `fin.reminder.sent:${userId}:${bill.id}:${bill.dueDate}`; }
+    async function checkBillReminders(){
+      const r = await fetch('list_bills.php', { credentials:'same-origin', cache:'no-store' });
+      if (!r.ok) return; const d = await r.json();
+      if (!d || d.success===false) return;
+      const items = d.items||[]; const userId = d.userId;
+      for (const b of items){
+        if (b.isPaid) continue;
+        const optKey = `fin.bill.remind:${userId}:${b.id}`;
+        if (!localStorage.getItem(optKey)) continue;
+        const days = dash_daysUntil(b.dueDate);
+        if (days === 2){
+          const sentKey = dash_reminderKey(userId, b);
+          if (localStorage.getItem(sentKey)) continue;
+          const ok = await FinUI.confirm({ title:'Send reminder', message:`Send reminder for ${b.name} due on ${b.dueDate}?`, confirmText:'Send' });
+          if (!ok) continue;
+          try{
+            const rr = await fetch('send_bill_reminder.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id: b.id }), credentials:'same-origin' });
+            const oo = await rr.json();
+            if (rr.ok && oo.success) localStorage.setItem(sentKey, String(Date.now()));
+          }catch(_){ }
+        }
+      }
+    }
+
+    // --- Notifications ---
+    function getPrefs(){ return fetch('get_preferences.php', { credentials:'same-origin', cache:'no-store' }).then(r=>r.json()).catch(()=>({})); }
+    function unreadKey(uid){ return `fin.notify.unread:${uid}`; }
+    function notifId(obj){ return btoa(encodeURIComponent(JSON.stringify(obj))).slice(0,24); }
+    function renderNotifications(list){
+      const wrap = notifyPanel.querySelector('.max-h-60');
+      wrap.innerHTML = '';
+      if (!list.length){ wrap.innerHTML = '<div class="px-3 py-2 text-sm text-slate-500">No new notifications</div>'; return; }
+      list.slice(0,20).forEach(n => {
+        const row = document.createElement('div');
+        row.className = 'px-3 py-2 text-sm hover:bg-slate-50 cursor-pointer flex items-start gap-2';
+        const icon = document.createElement('span');
+        icon.textContent = n.icon || '🔔';
+        const box = document.createElement('div');
+        const title = document.createElement('div'); title.className = 'font-medium'; title.textContent = n.title;
+        const msg = document.createElement('div'); msg.className = 'text-slate-600'; msg.textContent = n.message;
+        const time = document.createElement('div'); time.className = 'text-xs text-slate-400'; time.textContent = n.time;
+        box.appendChild(title); box.appendChild(msg); box.appendChild(time);
+        row.appendChild(icon); row.appendChild(box);
+        row.addEventListener('click', ()=>{
+          // Navigate if link present
+          if (n.href){ window.location.href = n.href; }
+        });
+        wrap.appendChild(row);
+      });
+    }
+    async function buildNotifications(dash){
+      const prefRes = await getPrefs();
+      const prefs = prefRes?.prefs || {};
+      const uid = prefRes?.success ? prefRes.userId || (await (await fetch('get_profile.php',{credentials:'same-origin'})).json()).id : null;
+      const list = [];
+      // Budget thresholds
+      try{
+        const budget = dash.totalBudget || 0; const spend = dash.totalExpenses || 0;
+        const ratio = budget > 0 ? (spend / budget) : 0;
+        const thresholds = [
+          { pct:0.25, enabled: !!prefs.budget25, title:'You’ve used 25% of your monthly budget.', icon:'🧮' },
+          { pct:0.50, enabled: !!prefs.budget50, title:'Caution! You’ve reached 50% of your budget.', icon:'⚠️' },
+          { pct:1.00, enabled: !!prefs.budget100, title:'Alert! You’ve reached 100% of your monthly budget.', icon:'🚨' }
+        ];
+        thresholds.forEach(t => {
+          if (!t.enabled) return;
+          if (ratio >= t.pct){
+            list.push({
+              id: notifId({k:'budget', p:t.pct, m:dash.totalExpensesFormatted}),
+              icon: t.icon,
+              title: 'Budget Alert',
+              message: t.title,
+              time: new Date().toLocaleString(),
+              href: 'dashboard.html?skipOnboarding=1'
+            });
+          }
+        });
+      }catch(_){ }
+      // Bill reminders (leadDays from prefs, default 2)
+      try{
+        const lead = Math.max(1, Math.min(7, parseInt(prefs.leadDays||'2',10)));
+        const r = await fetch('list_bills.php', { credentials:'same-origin', cache:'no-store' });
+        const d = await r.json();
+        const items = d.items||[]; const now = new Date(); const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        items.filter(b=>!b.isPaid).forEach(b=>{
+          const due = new Date(b.dueDate+'T00:00:00');
+          const days = Math.round((due - today)/(24*60*60*1000));
+          if (days >= 0 && days <= lead){
+            const when = days===0 ? 'today' : days===1 ? 'tomorrow' : `in ${days} days`;
+            list.push({
+              id: notifId({k:'bill', id:b.id, d:b.dueDate}),
+              icon: '📅',
+              title: 'Bill Reminder',
+              message: `${b.name} of ₹${(Number(b.amount)||0).toFixed(2)} is due ${when}.`,
+              time: new Date().toLocaleString(),
+              href: 'bills.html'
+            });
+          }
+        });
+      }catch(_){ }
+
+      // Deduplicate by id
+      const map = new Map(); list.forEach(n => { map.set(n.id, n); });
+      const finalList = Array.from(map.values());
+      renderNotifications(finalList);
+
+      // Unread dot: mark unread if there are any notifications newer than last seen session
+      try{
+        const dot = document.getElementById('notifyDot');
+        if (finalList.length > 0) dot.classList.remove('hidden'); else dot.classList.add('hidden');
+        // Clear dot on open
+        notifyBtn.addEventListener('click', ()=>{ dot.classList.add('hidden'); }, { once:false });
+      }catch(_){ }
+    }
   </script>
 </body>
 </html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insights - FinCtrl</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root { --brand:#00A86B; }
+    .shadow-soft{ box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+    .dark .bg-white{ background-color:#0f172a !important; }
+    /* Card content should be light in dark theme */
+    .dark .bg-white { color:#e5e7eb !important; }
+    .dark .text-slate-900{ color:#f1f5f9 !important; }
+    .dark .text-slate-800{ color:#e2e8f0 !important; }
+    .dark .text-slate-700{ color:#e2e8f0 !important; }
+    .dark .text-slate-600{ color:#cbd5e1 !important; }
+    .dark .text-slate-500{ color:#cbd5e1 !important; }
+    .dark .border-slate-200{ border-color:#334155 !important; }
+    .dark input, .dark select { background-color:#ffffff !important; color:#000000 !important; }
+    /* Keep hover backgrounds visible in dark mode */
+    .dark .hover\:bg-slate-50:hover { background-color:#1f2937 !important; }
+    /* Sidebar links readable in dark */
+    .dark #sidebar a { color:#e2e8f0 !important; }
+    .dark #sidebar a.bg-emerald-50 { background-color: rgba(16,185,129,0.12) !important; color:#a7f3d0 !important; }
+    .dark #sidebar a.border { border-color:#334155 !important; }
+  </style>
+  <script>
+  (function(){ try{ var t = localStorage.getItem('fin.theme'); if (!t){ localStorage.setItem('fin.theme','light'); t='light'; } if (t==='dark') document.documentElement.classList.add('dark'); else document.documentElement.classList.remove('dark'); }catch(e){} })();
+  </script>
+</head>
+<body class="bg-white text-slate-900">
+  <!-- Sidebar (pinned on lg) -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 w-[250px] bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 z-30 flex flex-col">
+    <div class="h-[64px] border-b border-slate-200 px-4 flex items-center gap-3">
+      <a href="dashboard.html?skipOnboarding=1" class="flex items-center gap-2">
+        <img src="assets/images/logo.png" alt="FinCtrl" class="w-7 h-7" />
+        <span class="font-semibold">FinCtrl</span>
+      </a>
+    </div>
+    <nav class="flex-1 p-3 text-sm overflow-y-auto">
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="dashboard.html?skipOnboarding=1">Dashboard</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="transactions.html">Transactions</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="bills.html">Bills</a>
+      <a class="block px-3 py-2 rounded-lg border bg-emerald-50 text-emerald-700 border-emerald-200" href="insights.html">Insights</a>
+      <a class="block px-3 py-2 rounded-lg hover:bg-slate-50 text-slate-800 border border-transparent" href="settings.html">Settings</a>
+    </nav>
+  </aside>
+
+  <!-- Top bar -->
+  <header class="sticky top-0 z-20 bg-white border-b border-slate-200">
+    <div class="lg:pl-[250px] max-w-[1440px] mx-auto px-4 h-[64px] flex items-center justify-end">
+      <a href="dashboard.html?skipOnboarding=1" class="px-3 py-1.5 text-sm rounded border border-slate-200 hover:bg-slate-50">Back to Dashboard</a>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="lg:pl-[250px] max-w-[1440px] mx-auto px-4 py-6">
+    <!-- Spending by Category -->
+    <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-soft">
+      <div class="mb-3 font-semibold">Spending by Category</div>
+      <div style="height:220px"><canvas id="catChart" style="width:100%;height:100%"></canvas></div>
+    </section>
+
+    <!-- Budget vs Spending -->
+    <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-soft mt-6">
+      <div class="mb-3 font-semibold">Budget vs Spending (Monthly)</div>
+      <div style="height:240px"><canvas id="budgetChart" style="width:100%;height:100%"></canvas></div>
+    </section>
+
+    <!-- Top Expenses -->
+    <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-soft mt-6">
+      <div class="mb-3 font-semibold">Top Expenses</div>
+      <div id="topList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+    </section>
+  </main>
+
+  <script>
+    let catChart, budgetChart, lastData;
+    function chartTheme(){
+      const dark = document.documentElement.classList.contains('dark');
+      return {
+        isDark: dark,
+        grid: dark ? 'rgba(148,163,184,0.25)' : 'rgba(148,163,184,0.2)',
+        ticks: dark ? '#cbd5e1' : '#334155',
+        legend: dark ? '#e2e8f0' : '#334155',
+        tooltipBg: dark ? '#111827' : '#ffffff',
+        tooltipFg: dark ? '#e5e7eb' : '#0f172a',
+        border: dark ? '#334155' : '#e2e8f0'
+      };
+    }
+    function by(val, fallback=0){ return typeof val==='number' && isFinite(val) ? val : fallback; }
+    async function fetchDashboard(){
+      const res = await fetch('dashboard_data.php', { credentials:'same-origin', cache:'no-store' });
+      return res.json();
+    }
+
+    function renderCatChart(labels, values){
+      const el = document.getElementById('catChart');
+      const C = chartTheme();
+      try{ catChart?.destroy(); }catch(_){ }
+      catChart = new Chart(el, {
+        type: 'bar',
+        data: { labels, datasets: [{ label:'Expense', data: values, backgroundColor:'#00A86B' }] },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{ labels:{ color:C.legend } }, tooltip:{ backgroundColor:C.tooltipBg, titleColor:C.tooltipFg, bodyColor:C.tooltipFg, borderColor:C.border, borderWidth:1 } },
+          scales:{
+            x:{ grid:{ color:C.grid }, ticks:{ color:C.ticks } },
+            y:{ beginAtZero:true, grid:{ color:C.grid }, ticks:{ color:C.ticks } }
+          }
+        }
+      });
+    }
+
+    function renderBudgetChart(monthLabels, spendingValues, budgetAmount){
+      const el = document.getElementById('budgetChart');
+      const C = chartTheme();
+      try{ budgetChart?.destroy(); }catch(_){ }
+      const budgetLine = monthLabels.map(_ => budgetAmount);
+      budgetChart = new Chart(el, {
+        type: 'line',
+        data: {
+          labels: monthLabels,
+          datasets: [
+            { label:'Spending', data: spendingValues, borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.15)', tension:0.3, fill:true },
+            { label:'Budget', data: budgetLine, borderColor:'#00A86B', borderDash:[6,4], tension:0.3 }
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{ labels:{ color:C.legend } }, tooltip:{ backgroundColor:C.tooltipBg, titleColor:C.tooltipFg, bodyColor:C.tooltipFg, borderColor:C.border, borderWidth:1 } },
+          scales:{
+            x:{ grid:{ color:C.grid }, ticks:{ color:C.ticks } },
+            y:{ beginAtZero:true, grid:{ color:C.grid }, ticks:{ color:C.ticks } }
+          }
+        }
+      });
+    }
+
+    function renderTopExpenses(labels, values){
+      const list = document.getElementById('topList');
+      list.innerHTML = '';
+      const items = labels.map((l,i)=>({ name:l, amount: by(values[i],0) }))
+        .sort((a,b)=>b.amount - a.amount).slice(0,6);
+      items.forEach(it => {
+        const card = document.createElement('div');
+        card.className = 'border border-slate-200 rounded-xl p-3';
+        card.innerHTML = `<div class="flex items-center justify-between"><div class="font-medium">${it.name}</div><div class="text-slate-500 text-sm">${it.amount.toFixed(2)}</div></div>`;
+        list.appendChild(card);
+      });
+    }
+
+    (async function init(){
+      const d = await fetchDashboard();
+      lastData = d;
+      renderCatChart(d.categoryBreakdown.labels, d.categoryBreakdown.values);
+      renderBudgetChart(d.monthly.labels, d.monthly.values, d.totalBudget || 0);
+      renderTopExpenses(d.categoryBreakdown.labels, d.categoryBreakdown.values);
+      // Re-render on theme class changes
+      const obs = new MutationObserver(() => {
+        if (!lastData) return;
+        renderCatChart(lastData.categoryBreakdown.labels, lastData.categoryBreakdown.values);
+        renderBudgetChart(lastData.monthly.labels, lastData.monthly.values, lastData.totalBudget || 0);
+      });
+      obs.observe(document.documentElement, { attributes:true, attributeFilter:['class'] });
+    })();
+  </script>
+</body>
+</html>

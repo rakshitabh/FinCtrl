@@ -83,6 +83,14 @@ define('DEVELOPMENT', true);    // Function to generate OTP
                 output_json('error', 'Invalid email address');
             }
             
+            // Include DB and reject if user already exists BEFORE sending OTP
+            require_once __DIR__ . '/includes/database.php';
+            $db = Database::getInstance();
+            $existingUser = $db->fetchOne('SELECT id FROM users WHERE email = :email LIMIT 1', ['email' => $email]);
+            if ($existingUser) {
+                output_json('error', 'User with this email already exists');
+            }
+            
             // Generate OTP
             $otp = generateOTP();
             
@@ -96,15 +104,11 @@ define('DEVELOPMENT', true);    // Function to generate OTP
             // }
             
             // Include required files
-            require_once __DIR__ . '/includes/database.php';
             require 'vendor/autoload.php';
             $smtp_config = include 'smtp_config.php';
             
             // Start session for storing email
             session_start();
-            
-            // Get database instance
-            $db = Database::getInstance();
             
             // Delete any existing OTP
             $db->query("DELETE FROM otp_verifications WHERE email = :email", [
